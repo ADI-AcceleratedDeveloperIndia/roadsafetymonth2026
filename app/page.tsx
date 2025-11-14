@@ -128,10 +128,13 @@ export default function Home() {
                   loop
                   muted
                   playsInline
-                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, opacity: 0.5 }}
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, opacity: 1 }}
                 >
                   <source src="/assets/HEROSECTION PHOTOCONTAINERBACKGROUND.mp4" type="video/mp4" />
                 </video>
+
+                {/* Semi-transparent overlay to make video visible but not too bright */}
+                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(255, 255, 255, 0.3)', zIndex: 1 }}></div>
                 
                 <div className="grid w-full max-w-md grid-cols-1 gap-6 sm:grid-cols-2" style={{ position: 'relative', zIndex: 10 }}>
                   {leadershipProfiles.map((leader) => (
