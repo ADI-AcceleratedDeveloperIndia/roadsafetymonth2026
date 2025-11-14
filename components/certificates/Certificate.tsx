@@ -130,7 +130,7 @@ const Certificate = forwardRef<HTMLDivElement, CertificateProps>(({ data }, ref)
                 alt="Government of Telangana"
                 width={80}
                 height={80}
-                className="h-16 w-16 object-contain flex-shrink-0"
+                className="h-20 w-20 object-contain flex-shrink-0"
                 unoptimized
               />
               <Image
@@ -138,7 +138,7 @@ const Certificate = forwardRef<HTMLDivElement, CertificateProps>(({ data }, ref)
                 alt="Telangana Road Safety Month 2026"
                 width={140}
                 height={90}
-                className="h-16 w-auto object-contain flex-shrink-0"
+                className="h-20 w-auto object-contain flex-shrink-0"
                 unoptimized
               />
             </div>
