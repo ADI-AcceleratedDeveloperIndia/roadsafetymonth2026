@@ -121,20 +121,19 @@ export default function Home() {
               </div>
             </div>
             <div className="relative flex-1 min-w-[280px]">
-              <div className="rs-roadstrap flex flex-col items-center gap-8 p-8 md:p-10 relative overflow-hidden">
+              <div className="rs-roadstrap flex flex-col items-center gap-8 p-8 md:p-10 relative overflow-hidden" style={{ background: 'transparent' }}>
                 {/* Video Background */}
                 <video
                   autoPlay
                   loop
                   muted
                   playsInline
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ zIndex: 1, opacity: 0.4 }}
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, opacity: 0.5 }}
                 >
                   <source src="/assets/HEROSECTION PHOTOCONTAINERBACKGROUND.mp4" type="video/mp4" />
                 </video>
                 
-                <div className="grid w-full max-w-md grid-cols-1 gap-6 sm:grid-cols-2 relative z-10">
+                <div className="grid w-full max-w-md grid-cols-1 gap-6 sm:grid-cols-2" style={{ position: 'relative', zIndex: 10 }}>
                   {leadershipProfiles.map((leader) => (
                     <div
                       key={leader.name}
