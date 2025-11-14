@@ -121,31 +121,47 @@ export default function Home() {
               </div>
             </div>
             <div className="relative flex-1 min-w-[280px]">
-              <div className="rs-roadstrap flex flex-col items-center gap-8 p-8 md:p-10">
-                <div className="grid w-full max-w-md grid-cols-1 gap-6 sm:grid-cols-2">
-                  {leadershipProfiles.map((leader) => (
-                    <div
-                      key={leader.name}
-                      className="flex flex-col items-center gap-4 rounded-3xl border border-white/70 bg-white/95 p-6 text-emerald-900 backdrop-blur-lg shadow-[0_18px_38px_rgba(0,0,0,0.22)]"
-                    >
-                      <div className="relative h-40 w-40 overflow-hidden rounded-full border-4 border-white shadow-[0_16px_28px_rgba(0,0,0,0.18)]">
-                        <Image
-                          src={leader.image}
-                          alt={leader.alt}
-                          width={320}
-                          height={320}
-                          className="h-full w-full object-cover"
-                          priority
-                        />
+              <div className="rs-roadstrap flex flex-col items-center gap-8 p-8 md:p-10 relative overflow-hidden">
+                {/* Video Background */}
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover opacity-30"
+                  style={{ zIndex: 0 }}
+                >
+                  <source src="/assets/HEROSECTION PHOTOCONTAINERBACKGROUND.mp4" type="video/mp4" />
+                </video>
+                
+                {/* Content Layer */}
+                <div className="relative z-10 w-full">
+                  <div className="grid w-full max-w-md grid-cols-1 gap-6 sm:grid-cols-2 mx-auto">
+                    {leadershipProfiles.map((leader) => (
+                      <div
+                        key={leader.name}
+                        className="flex flex-col items-center gap-4 rounded-3xl border border-white/70 bg-white/95 p-6 text-emerald-900 backdrop-blur-lg shadow-[0_18px_38px_rgba(0,0,0,0.22)]"
+                      >
+                        <div className="relative h-40 w-40 overflow-hidden rounded-full border-4 border-white shadow-[0_16px_28px_rgba(0,0,0,0.18)]">
+                          <Image
+                            src={leader.image}
+                            alt={leader.alt}
+                            width={320}
+                            height={320}
+                            className="h-full w-full object-cover"
+                            priority
+                          />
+                        </div>
+                        <div className="text-center space-y-1">
+                          <p className="text-xs uppercase tracking-wide text-emerald-500">{leader.title}</p>
+                          <p className="text-lg font-semibold text-emerald-900">{leader.name}</p>
+                        </div>
                       </div>
-                      <div className="text-center space-y-1">
-                        <p className="text-xs uppercase tracking-wide text-emerald-500">{leader.title}</p>
-                        <p className="text-lg font-semibold text-emerald-900">{leader.name}</p>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-                <div className="text-center text-white">
+                
+                <div className="text-center text-white relative z-10">
                   <p className="text-xs uppercase tracking-[0.35em] text-white/70">Live Dashboard</p>
                   <p className="text-sm font-semibold text-white">Updated every hour</p>
                 </div>
