@@ -310,3 +310,15 @@ export const REGIONAL_AUTHORITIES: Record<string, RegionalAuthority> = {
 export const getRegionalAuthority = (code: string | null | undefined) =>
   code ? REGIONAL_AUTHORITIES[code.toLowerCase()] : undefined;
 
+// Filter function for event mode - only shows Karimnagar when EVENT_MODE is enabled
+export const getFilteredRegionalAuthorities = (): Record<string, RegionalAuthority> => {
+  // If EVENT_MODE is enabled, only show Karimnagar
+  if (process.env.NEXT_PUBLIC_EVENT_MODE === 'true') {
+    return {
+      karimnagar: REGIONAL_AUTHORITIES.karimnagar,
+    };
+  }
+  // Otherwise, return all districts
+  return REGIONAL_AUTHORITIES;
+};
+
