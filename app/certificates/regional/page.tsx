@@ -4,23 +4,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { Award, ArrowRight, MapPin, Sparkles } from "lucide-react";
 import { useMemo } from "react";
-import { getFilteredRegionalAuthorities } from "@/lib/regional";
+import { REGIONAL_AUTHORITIES } from "@/lib/regional";
 
 export default function RegionalCertificatesPage() {
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   
-  // Use filtered authorities (respects EVENT_MODE env var)
-  // Sort districts: Karimnagar and Sircilla first, then alphabetically
+  // EVENT BRANCH: Only show Karimnagar
   const REGIONAL_SECTIONS = useMemo(() => {
-    const allDistricts = Object.values(getFilteredRegionalAuthorities());
-    const priority = ['karimnagar', 'rajannasircilla'];
-    
-    const priorityDistricts = allDistricts.filter(d => priority.includes(d.code));
-    const otherDistricts = allDistricts
-      .filter(d => !priority.includes(d.code))
-      .sort((a, b) => a.district.localeCompare(b.district));
-    
-    return [...priorityDistricts, ...otherDistricts];
+    return [REGIONAL_AUTHORITIES.karimnagar];
   }, []);
   return (
     <div className="rs-container py-14 space-y-10">
