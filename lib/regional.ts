@@ -313,7 +313,8 @@ export const getRegionalAuthority = (code: string | null | undefined) =>
 // Filter function for event mode - only shows Karimnagar when EVENT_MODE is enabled
 export const getFilteredRegionalAuthorities = (): Record<string, RegionalAuthority> => {
   // If EVENT_MODE is enabled, only show Karimnagar
-  if (process.env.NEXT_PUBLIC_EVENT_MODE === 'true') {
+  const eventMode = process.env.NEXT_PUBLIC_EVENT_MODE;
+  if (eventMode === 'true' || eventMode === '1' || eventMode === 'True' || eventMode === 'TRUE') {
     return {
       karimnagar: REGIONAL_AUTHORITIES.karimnagar,
     };
