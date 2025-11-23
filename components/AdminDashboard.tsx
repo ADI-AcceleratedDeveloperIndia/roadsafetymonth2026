@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Award, FileText, Users, Download, Activity, MapPin, Plus } from "lucide-react";
+import { Award, FileText, Users, Download, Activity, MapPin, Plus, BookOpen, Copy, Check } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +46,25 @@ export default function AdminDashboard() {
     place: "",
     date: "",
   });
+  const [selectedOrganiser, setSelectedOrganiser] = useState<string | null>(null);
+  const [copiedRefId, setCopiedRefId] = useState<string | null>(null);
+
+  // Dummy organiser data
+  const dummyOrganiser = {
+    id: "org-001",
+    name: "Sri Ramesh Kumar",
+    organisation: "Karimnagar Government High School",
+    eventDetails: "Road Safety Awareness Rally & Workshop",
+    place: "Karimnagar",
+    date: "2026-01-15",
+    referenceIds: [
+      "RSM-ORG-20260115-A1B2C3D4",
+      "RSM-ORG-20260115-E5F6G7H8",
+      "RSM-ORG-20260115-I9J0K1L2",
+      "RSM-ORG-20260115-M3N4O5P6",
+      "RSM-ORG-20260115-Q7R8S9T0",
+    ],
+  };
 
   useEffect(() => {
     const defaultStats = {
@@ -121,6 +140,39 @@ export default function AdminDashboard() {
       place: "",
       date: "",
     });
+  };
+
+  const handleCopyRefId = (refId: string) => {
+    navigator.clipboard.writeText(refId);
+    setCopiedRefId(refId);
+    setTimeout(() => setCopiedRefId(null), 2000);
+  };
+
+  const handleDownloadStudyMaterial = async () => {
+    try {
+      // Try to download the PDF file from the correct path
+      const response = await fetch("/assets/Road_Safety_Study_Material.pdf");
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "Road_Safety_Study_Material.pdf";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } else {
+        // Fallback: Open HTML version in new tab for printing
+        window.open("/assets/study-material/road-safety-study-material.html", "_blank");
+        alert("PDF file not found. Opening HTML version. You can print it as PDF using your browser's print function.");
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      // Fallback: Open HTML version
+      window.open("/assets/study-material/road-safety-study-material.html", "_blank");
+      alert("PDF file not available. Opening HTML version. You can print it as PDF using your browser's print function.");
+    }
   };
 
   useEffect(() => {
@@ -368,6 +420,46 @@ export default function AdminDashboard() {
       </div>
 
       <div className="rs-card p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-emerald-900">Event Organisers</h2>
+            <p className="text-sm text-slate-600">Manage organisers and their reference IDs</p>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <div
+            className="rounded-xl border border-emerald-100 bg-white/90 p-4 hover:border-emerald-300 cursor-pointer transition-colors"
+            onClick={() => setSelectedOrganiser(dummyOrganiser.id)}
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="font-semibold text-emerald-900 text-lg">{dummyOrganiser.name}</div>
+                <div className="text-sm text-slate-600 mt-1">{dummyOrganiser.organisation}</div>
+                <div className="text-xs text-slate-500 mt-2">
+                  <span className="inline-block mr-4">
+                    <MapPin className="h-3 w-3 inline mr-1" />
+                    {dummyOrganiser.place}
+                  </span>
+                  <span className="inline-block">
+                    <Activity className="h-3 w-3 inline mr-1" />
+                    {new Date(dummyOrganiser.date).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="text-xs text-emerald-700 mt-2 font-medium">
+                  {dummyOrganiser.referenceIds.length} Reference IDs
+                </div>
+              </div>
+              <div className="ml-4">
+                <Button variant="outline" size="sm" className="gap-2">
+                  View Details
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="rs-card p-6 space-y-4">
         <h2 className="text-lg font-semibold text-emerald-900">Appreciation Messages</h2>
         <div className="space-y-4">
           {appreciations.slice(0, 20).map((a, idx) => (
@@ -380,6 +472,103 @@ export default function AdminDashboard() {
           {appreciations.length === 0 && <div className="text-sm text-slate-600">No appreciations yet.</div>}
         </div>
       </div>
+
+      {/* Organiser Details Dialog */}
+      <Dialog open={selectedOrganiser === dummyOrganiser.id} onOpenChange={(open) => !open && setSelectedOrganiser(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Organiser Details</DialogTitle>
+            <DialogDescription>
+              View reference IDs and download study material for this organiser
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 mt-4">
+            <div className="space-y-2">
+              <h3 className="font-semibold text-emerald-900">Organiser Information</h3>
+              <div className="bg-emerald-50 rounded-lg p-4 space-y-2">
+                <div>
+                  <span className="text-sm text-slate-600">Name:</span>
+                  <span className="ml-2 font-medium text-emerald-900">{dummyOrganiser.name}</span>
+                </div>
+                <div>
+                  <span className="text-sm text-slate-600">Organisation:</span>
+                  <span className="ml-2 font-medium text-emerald-900">{dummyOrganiser.organisation}</span>
+                </div>
+                <div>
+                  <span className="text-sm text-slate-600">Event:</span>
+                  <span className="ml-2 font-medium text-emerald-900">{dummyOrganiser.eventDetails}</span>
+                </div>
+                <div>
+                  <span className="text-sm text-slate-600">Location:</span>
+                  <span className="ml-2 font-medium text-emerald-900">{dummyOrganiser.place}</span>
+                </div>
+                <div>
+                  <span className="text-sm text-slate-600">Date:</span>
+                  <span className="ml-2 font-medium text-emerald-900">
+                    {new Date(dummyOrganiser.date).toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-emerald-900">Reference IDs</h3>
+                <span className="text-xs text-slate-500">{dummyOrganiser.referenceIds.length} IDs</span>
+              </div>
+              <div className="space-y-2">
+                {dummyOrganiser.referenceIds.map((refId, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between bg-slate-50 rounded-lg p-3 border border-slate-200"
+                  >
+                    <code className="text-sm font-mono text-emerald-900 flex-1">{refId}</code>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleCopyRefId(refId)}
+                      className="ml-2 h-8 w-8 p-0"
+                    >
+                      {copiedRefId === refId ? (
+                        <Check className="h-4 w-4 text-emerald-600" />
+                      ) : (
+                        <Copy className="h-4 w-4 text-slate-600" />
+                      )}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-4 border-t border-emerald-100">
+              <h3 className="font-semibold text-emerald-900">Study Material</h3>
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <div className="flex items-start gap-3">
+                  <BookOpen className="h-5 w-5 text-blue-700 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-blue-900">Road Safety Study Material</p>
+                    <p className="text-xs text-blue-700 mt-1">
+                      Comprehensive guide covering road safety rules, regulations, and best practices for organisers.
+                    </p>
+                    <Button
+                      onClick={handleDownloadStudyMaterial}
+                      className="mt-3 bg-blue-600 hover:bg-blue-700 text-white gap-2"
+                      size="sm"
+                    >
+                      <Download className="h-4 w-4" />
+                      Download PDF
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

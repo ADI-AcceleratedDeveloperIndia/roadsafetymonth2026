@@ -3,6 +3,8 @@ import { z } from "zod";
 import connectDB from "@/lib/db";
 import QuizAttempt from "@/models/QuizAttempt";
 import { generateReferenceId } from "@/lib/reference";
+import enQuiz from "@/locales/en/quiz.json";
+import teQuiz from "@/locales/te/quiz.json";
 
 const submitQuizSchema = z.object({
   fullName: z.string().min(1),
@@ -159,8 +161,20 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
-  return NextResponse.json({ questions: QUIZ_QUESTIONS });
+export async function GET(request: NextRequest) {
+  // Get language from query parameter or header
+  const lang = request.nextUrl.searchParams.get("lang") || "en";
+  const quizData = lang === "te" ? teQuiz : enQuiz;
+  
+  // Map translated questions to the format expected by frontend
+  const translatedQuestions = quizData.questions.map((q, idx) => ({
+    id: q.id,
+    question: q.question,
+    options: q.options,
+    correct: QUIZ_QUESTIONS[idx].correct, // Keep original correct answer index
+  }));
+  
+  return NextResponse.json({ questions: translatedQuestions });
 }
 
 

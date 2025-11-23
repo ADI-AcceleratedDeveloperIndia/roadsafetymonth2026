@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 import { generateReferenceId } from "@/lib/reference";
 
 type PreventionSection = {
@@ -107,6 +108,9 @@ const PREVENTION_SECTIONS: PreventionSection[] = [
 type PreventionProgress = Record<string, boolean[]>;
 
 export default function PreventionPage() {
+  const { t } = useTranslation("common");
+  const { t: tc } = useTranslation("content");
+  
   const [progress, setProgress] = useState<PreventionProgress>(() =>
     PREVENTION_SECTIONS.reduce((acc, section) => {
       acc[section.id] = section.steps.map(() => false);
@@ -151,19 +155,18 @@ export default function PreventionPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl">
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-green-800 mb-3">Prevention &gt; Cure</h1>
+        <h1 className="text-4xl font-bold text-green-800 mb-3">{tc("preventionGreaterThanCure") || "Prevention > Cure"}</h1>
         <p className="text-gray-600 max-w-3xl mx-auto">
-          Safety is a chain of small decisions. Confirm each prevention step with “Yes” to reveal why it matters.
-          Finish every section to receive a reference ID acknowledging your commitment.
+          {tc("safetyIsChainOfDecisions") || "Safety is a chain of small decisions. Confirm each prevention step with \"Yes\" to reveal why it matters. Finish every section to receive a reference ID acknowledging your commitment."}
         </p>
       </div>
 
       <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
         <p className="text-sm font-medium text-gray-700">
-          Progress: <span className="text-green-700">{completedSteps} / {totalSteps}</span>
+          {tc("progress") || "Progress"}: <span className="text-green-700">{completedSteps} / {totalSteps}</span>
         </p>
         {!referenceId && (
-          <p className="text-xs text-gray-500">Complete all prompts to unlock your prevention reference ID.</p>
+          <p className="text-xs text-gray-500">{tc("completeAllPromptsPrevention") || "Complete all prompts to unlock your prevention reference ID."}</p>
         )}
       </div>
 
@@ -178,7 +181,7 @@ export default function PreventionPage() {
                   <CardTitle>{section.title}</CardTitle>
                   <CardDescription>{section.description}</CardDescription>
                 </div>
-                {sectionCompleted && <Badge variant="default">Section completed</Badge>}
+                {sectionCompleted && <Badge variant="default">{tc("sectionCompleted") || "Section completed"}</Badge>}
               </CardHeader>
               <CardContent className="space-y-4">
                 {section.steps.map((step, index) => {
@@ -197,7 +200,7 @@ export default function PreventionPage() {
                           onClick={() => handleYes(section.id, index)}
                           disabled={acknowledged}
                         >
-                          {acknowledged ? "Noted" : "Yes"}
+                          {acknowledged ? (tc("noted") || "Noted") : (tc("yes") || "Yes")}
                         </Button>
                       </div>
                       {acknowledged && (
@@ -218,10 +221,10 @@ export default function PreventionPage() {
         <Card className="mt-10 bg-amber-50 border-amber-200">
           <CardContent className="py-6 text-center space-y-2">
             <p className="text-lg font-semibold text-amber-900">
-              Thank you for pledging to prevent incidents before they occur.
+              {tc("thankYouForPledging") || "Thank you for pledging to prevent incidents before they occur."}
             </p>
             <p className="text-sm text-amber-900">
-              Your prevention reference ID can be shared with campaign coordinators or event leads.
+              {tc("preventionReferenceIdCanBeShared") || "Your prevention reference ID can be shared with campaign coordinators or event leads."}
             </p>
             <Badge variant="secondary" className="text-base px-4 py-2">
               {referenceId}

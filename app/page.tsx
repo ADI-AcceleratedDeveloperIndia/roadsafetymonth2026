@@ -18,78 +18,75 @@ import {
   Footprints,
 } from "lucide-react";
 
-const rulesSections = [
-  {
-    title: "Helmet Protocol",
-    icon: <TrafficCone className="h-6 w-6" />,
-    description:
-      "Always wear a BIS-certified helmet while riding a two-wheeler. Secure the chin strap snugly and ensure your pillion rider does the same.",
-  },
-  {
-    title: "Seatbelt Discipline",
-    icon: <ShieldCheck className="h-6 w-6" />,
-    description:
-      "Fasten seatbelts in every seat. Child passengers must use age-appropriate safety seats even on short trips.",
-  },
-  {
-    title: "Speed Awareness",
-    icon: <AlertTriangle className="h-6 w-6" />,
-    description:
-      "Follow posted speed limits, especially in residential areas, school zones, and at zebra crossings.",
-  },
-  {
-    title: "Pedestrian Priority",
-    icon: <Footprints className="h-6 w-6" />,
-    description:
-      "Always stop for pedestrians at zebra crossings. Avoid distractions like mobile phones while walking across roads.",
-  },
-];
-
-const featureCards = [
-  {
-    title: "Road Safety",
-    description: "Comprehensive guides and prevention tips for students, parents, and community members.",
-    href: "/road-safety",
-    icon: <BookOpenCheck className="h-6 w-6" />,
-    accent: "bg-yellow-100 text-yellow-800",
-  },
-];
-
-const engagementHighlights = [
-  {
-    label: "Quiz Arena",
-    description: "Earn merit badges by acing the 15-question knowledge check.",
-    href: "/quiz",
-    icon: <GraduationCap className="h-6 w-6" />,
-  },
-  {
-    label: "Simulation Lab",
-    description: "Fix violations in gamified scenarios: no helmet, triple riding, and drunk driving.",
-    href: "/simulation",
-    icon: <BrainCircuit className="h-6 w-6" />,
-  },
-  {
-    label: "Certificates Hub",
-    description: "Generate, preview, and verify official Telangana Road Safety certificates.",
-    href: "/certificates",
-    icon: <Award className="h-6 w-6" />,
-  },
-];
-
 export default function Home() {
   const { t } = useTranslation("common");
+  const { t: tc } = useTranslation("content");
   const leadershipProfiles = [
     {
-      title: "Hon'ble Chief Minister",
-      name: "Sri Anumula Revanth Reddy Garu",
+      title: tc("honChiefMinister"),
+      name: tc("chiefMinisterName"),
       image: "/assets/leadership/CM.png",
-      alt: "Sri Anumula Revanth Reddy Garu",
+      alt: tc("chiefMinisterAlt"),
     },
     {
-      title: "Hon'ble Transport Minister",
-      name: "Sri Ponnam Prabhakar Garu",
+      title: tc("honTransportMinister"),
+      name: tc("transportMinisterName"),
       image: "/assets/minister/Sri-Ponnam-Prabhakar.jpg",
-      alt: "Sri Ponnam Prabhakar Garu",
+      alt: tc("transportMinisterAlt"),
+    },
+  ];
+  
+  const rulesSections = [
+    {
+      title: tc("helmetProtocol"),
+      icon: <TrafficCone className="h-6 w-6" />,
+      description: tc("helmetProtocolDesc"),
+    },
+    {
+      title: tc("seatbeltDiscipline"),
+      icon: <ShieldCheck className="h-6 w-6" />,
+      description: tc("seatbeltDisciplineDesc"),
+    },
+    {
+      title: tc("speedAwareness"),
+      icon: <AlertTriangle className="h-6 w-6" />,
+      description: tc("speedAwarenessDesc"),
+    },
+    {
+      title: tc("pedestrianPriority"),
+      icon: <Footprints className="h-6 w-6" />,
+      description: tc("pedestrianPriorityDesc"),
+    },
+  ];
+
+  const featureCards = [
+    {
+      title: t("roadSafety"),
+      description: tc("roadSafetyComprehensiveGuides"),
+      href: "/road-safety",
+      icon: <BookOpenCheck className="h-6 w-6" />,
+      accent: "bg-yellow-100 text-yellow-800",
+    },
+  ];
+
+  const engagementHighlights = [
+    {
+      label: tc("quizArena"),
+      description: tc("quizArenaDesc"),
+      href: "/quiz",
+      icon: <GraduationCap className="h-6 w-6" />,
+    },
+    {
+      label: tc("simulationLab"),
+      description: tc("simulationLabDesc"),
+      href: "/simulation",
+      icon: <BrainCircuit className="h-6 w-6" />,
+    },
+    {
+      label: tc("certificatesHub"),
+      description: tc("certificatesHubDesc"),
+      href: "/certificates",
+      icon: <Award className="h-6 w-6" />,
     },
   ];
 
@@ -100,23 +97,22 @@ export default function Home() {
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-12">
             <div className="flex-1 space-y-4 text-white">
               <span className="rs-chip" style={{ background: "rgba(255,255,255,0.2)", color: "#ffffff" }}>
-                Government of Telangana • Road Safety Month
+                {tc("governmentOfTelangana")}
               </span>
               <h1 className="text-4xl md:text-5xl font-semibold leading-tight">
-                Together for Safer Roads. Learn, Act, and Lead by Example.
+                {tc("togetherForSaferRoads")}
               </h1>
               <p className="text-base md:text-lg text-white/80 max-w-xl">
-                Road safety is a shared responsibility. Explore gamified learning, interactive simulations, and official
-                certifications built to engage students, educators, and communities across Telangana.
+                {tc("roadSafetySharedResponsibility")}
               </p>
               <div className="flex flex-wrap gap-3 pt-2">
                 <Link href="/quiz" className="rs-btn-secondary">
                   <ShieldCheck className="h-5 w-5" />
-                  Take the Quiz Challenge
+                  {tc("takeQuizChallenge")}
                 </Link>
                 <Link href="/simulation" className="rs-btn-primary">
                   <BrainCircuit className="h-5 w-5" />
-                  Launch Simulation Lab
+                  {tc("launchSimulationLab")}
                 </Link>
               </div>
             </div>
@@ -160,8 +156,8 @@ export default function Home() {
                   ))}
                 </div>
                 <div className="text-center text-white relative z-10">
-                  <p className="text-xs uppercase tracking-[0.35em] text-black font-bold">Live Dashboard</p>
-                  <p className="text-sm font-bold text-black">Updated every hour</p>
+                  <p className="text-xs uppercase tracking-[0.35em] text-black font-bold">{tc("liveDashboard")}</p>
+                  <p className="text-sm font-bold text-black">{tc("updatedEveryHour")}</p>
                 </div>
               </div>
             </div>
@@ -172,11 +168,10 @@ export default function Home() {
       <section className="rs-section rs-grid-bg">
         <div className="rs-container space-y-10">
           <div className="space-y-3 text-center">
-            <span className="rs-chip">Transport-approved regulations</span>
-            <h2 className="text-3xl font-semibold text-emerald-900">Road Safety Rules for Every Citizen</h2>
+            <span className="rs-chip">{tc("transportApprovedRegulations")}</span>
+            <h2 className="text-3xl font-semibold text-emerald-900">{tc("roadSafetyRulesForEveryCitizen")}</h2>
             <p className="text-slate-600 max-w-2xl mx-auto">
-              Telangana mandates strict adherence to road safety regulations to protect every commuter. Review the essentials
-              below and integrate them into your daily travel routine.
+              {tc("telanganaMandatesStrictAdherence")}
             </p>
           </div>
 
@@ -198,14 +193,14 @@ export default function Home() {
         <div className="rs-container space-y-10">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div>
-              <span className="rs-chip">Learn More</span>
-              <h2 className="text-3xl font-semibold text-emerald-900 mt-3">Comprehensive Road Safety Resources</h2>
+              <span className="rs-chip">{tc("learnMore")}</span>
+              <h2 className="text-3xl font-semibold text-emerald-900 mt-3">{tc("comprehensiveRoadSafetyResources")}</h2>
               <p className="text-slate-600 max-w-2xl">
-                Dive deeper into interactive guides and prevention strategies designed for students, educators, and communities.
+                {tc("diveDeeperIntoInteractiveGuides")}
               </p>
             </div>
             <Link href="/events" className="rs-btn-secondary">
-              <ArrowRight className="h-4 w-4" /> Log a Road Safety Event
+              <ArrowRight className="h-4 w-4" /> {tc("logARoadSafetyEvent")}
             </Link>
           </div>
 
@@ -230,12 +225,11 @@ export default function Home() {
         <div className="rs-container space-y-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <span className="rs-chip">Engagement Hub</span>
-              <h2 className="text-3xl font-semibold text-emerald-900 mt-3">Play. Learn. Earn Road Safety Points.</h2>
+              <span className="rs-chip">{tc("engagementHub")}</span>
+              <h2 className="text-3xl font-semibold text-emerald-900 mt-3">{tc("playLearnEarnRoadSafetyPoints")}</h2>
             </div>
             <p className="text-slate-600 max-w-2xl">
-              Earn badges, unlock certificates, and track your progress with reference IDs generated for every quiz,
-              simulation, and training completed.
+              {tc("earnBadgesUnlockCertificates")}
             </p>
           </div>
 
@@ -248,7 +242,7 @@ export default function Home() {
                 <h3 className="text-lg font-semibold text-emerald-900 mb-2">{item.label}</h3>
                 <p className="text-sm text-slate-600 mb-5">{item.description}</p>
                 <Link href={item.href} className="inline-flex items-center text-sm font-semibold text-emerald-700 gap-2">
-                  Go to {item.label} <ArrowRight className="h-4 w-4" />
+                  {tc("goTo")} {item.label} <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             ))}
@@ -259,31 +253,28 @@ export default function Home() {
       <section className="rs-section">
         <div className="rs-container grid gap-10 md:grid-cols-[1.4fr_1fr] items-center">
           <div className="space-y-5">
-            <span className="rs-chip">Minister&apos;s message</span>
-            <h2 className="text-3xl font-semibold text-emerald-900">Road Safety is a shared promise to Telangana.</h2>
+            <span className="rs-chip">{tc("ministersMessage")}</span>
+            <h2 className="text-3xl font-semibold text-emerald-900">{tc("roadSafetyIsSharedPromise")}</h2>
             <p className="text-slate-700 text-lg">
-              "Road safety is a shared responsibility that requires the collective effort of every citizen. This month, we
-              come together to raise awareness, educate our communities, and commit to making Telangana&apos;s roads safer for
-              everyone."
+              "{tc("roadSafetySharedResponsibilityQuote")}"
             </p>
-            <p className="text-sm text-slate-600">Sri Ponnam Prabhakar Garu • Hon&apos;ble Transport & BC Welfare Minister</p>
+            <p className="text-sm text-slate-600">{tc("honTransportBCWelfareMinister")}</p>
           </div>
           <div className="rs-card overflow-hidden p-0">
             <div className="flex flex-col items-center gap-4 p-6 bg-white">
               <div className="relative h-40 w-40 rounded-full overflow-hidden border-4 border-emerald-200 shadow-lg">
                 <img
                   src="/assets/minister/Sri-Ponnam-Prabhakar.jpg"
-                  alt="Sri Ponnam Prabhakar Garu"
+                  alt={tc("transportMinisterAlt")}
                   className="h-full w-full object-cover"
                 />
               </div>
               <div className="text-center">
-                <p className="text-lg font-semibold text-emerald-900">Sri Ponnam Prabhakar Garu</p>
-                <p className="text-sm text-slate-600">Hon&apos;ble Minister for Transport & BC Welfare</p>
+                <p className="text-lg font-semibold text-emerald-900">{tc("transportMinisterName")}</p>
+                <p className="text-sm text-slate-600">{tc("honMinisterTransportBCWelfare")}</p>
               </div>
               <p className="text-sm text-slate-600 text-center">
-                Join institutions across Telangana that are pledging, conducting workshops, and tracking impact through the
-                official dashboard.
+                {tc("joinInstitutionsAcrossTelangana")}
               </p>
             </div>
           </div>
@@ -293,21 +284,21 @@ export default function Home() {
       <section className="rs-section">
         <div className="rs-container grid gap-6 md:grid-cols-3">
           <div className="rs-card p-6">
-            <h3 className="text-lg font-semibold text-emerald-900">Student-friendly</h3>
+            <h3 className="text-lg font-semibold text-emerald-900">{tc("studentFriendly")}</h3>
             <p className="text-sm text-slate-600">
-              Designed with youth-focused UI, gamified flows, and bilingual support so learning remains fun and impactful.
+              {tc("studentFriendlyDesc")}
             </p>
           </div>
           <div className="rs-card p-6">
-            <h3 className="text-lg font-semibold text-emerald-900">Government-endorsed</h3>
+            <h3 className="text-lg font-semibold text-emerald-900">{tc("governmentEndorsed")}</h3>
             <p className="text-sm text-slate-600">
-              Official certificates, verified reference IDs, and direct access to Transport Department initiatives.
+              {tc("governmentEndorsedDesc")}
             </p>
           </div>
           <div className="rs-card p-6">
-            <h3 className="text-lg font-semibold text-emerald-900">Community-driven</h3>
+            <h3 className="text-lg font-semibold text-emerald-900">{tc("communityDriven")}</h3>
             <p className="text-sm text-slate-600">
-              Institutions log events, students share pledges, and families learn together to make Telangana&apos;s roads safer.
+              {tc("communityDrivenDesc")}
             </p>
           </div>
         </div>

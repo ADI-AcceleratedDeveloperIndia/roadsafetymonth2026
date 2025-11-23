@@ -4,9 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { Award, ArrowRight, MapPin, Sparkles } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { REGIONAL_AUTHORITIES } from "@/lib/regional";
 
 export default function RegionalCertificatesPage() {
+  const { t } = useTranslation("common");
+  const { t: tc } = useTranslation("content");
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   
   // Only Karimnagar with Padala Rahul RTA
@@ -19,17 +22,15 @@ export default function RegionalCertificatesPage() {
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="space-y-3">
             <span className="rs-chip flex items-center gap-2">
-              <MapPin className="h-4 w-4" /> Regional Event Certificates
+              <MapPin className="h-4 w-4" /> {t("regionalEvent")} {t("certificates")}
             </span>
-            <h1 className="text-3xl font-semibold text-emerald-900">District-Level Certificate Add-ons</h1>
+            <h1 className="text-3xl font-semibold text-emerald-900">{tc("districtLevelCertificateAddons") || "District-Level Certificate Add-ons"}</h1>
             <p className="text-slate-600 max-w-3xl">
-              Recognise district-led Road Safety Month events with certificates that highlight your Regional Transport Authority
-              (RTA) leadership alongside the Hon&apos;ble Chief Minister and Transport Minister. Select a regional profile below to
-              pre-fill the certificate generator.
+              {tc("recogniseDistrictLedEvents") || "Recognise district-led Road Safety Month events with certificates that highlight your Regional Transport Authority (RTA) leadership alongside the Hon'ble Chief Minister and Transport Minister. Select a regional profile below to pre-fill the certificate generator."}
             </p>
           </div>
           <Link href="/certificates/generate" className="rs-btn-secondary">
-            <Award className="h-4 w-4" /> View all certificate types
+            <Award className="h-4 w-4" /> {tc("viewAllCertificateTypes") || "View all certificate types"}
           </Link>
         </div>
       </div>
@@ -60,7 +61,7 @@ export default function RegionalCertificatesPage() {
                 href={`/certificates/generate?rta=${region.code}&district=${encodeURIComponent(region.district)}`}
                 className="rs-btn-primary"
               >
-                <Sparkles className="h-4 w-4" /> Generate Regional Certificate
+                <Sparkles className="h-4 w-4" /> {tc("generateRegionalCertificate") || "Generate Regional Certificate"}
               </Link>
               <Link
                 href={`/certificates/preview?type=ORG&name=Regional%20Event&district=${encodeURIComponent(
@@ -68,7 +69,7 @@ export default function RegionalCertificatesPage() {
                 )}&date=${encodeURIComponent(today)}&ref=${encodeURIComponent(`REG-${region.code.toUpperCase()}`)}&rta=${region.code}`}
                 className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700"
               >
-                Quick preview <ArrowRight className="h-4 w-4" />
+                {tc("quickPreview") || "Quick preview"} <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>

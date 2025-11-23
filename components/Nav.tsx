@@ -38,13 +38,13 @@ export default function Nav() {
 
   const navLinks = [
     { href: "/", label: t("home"), key: "/" },
-    { href: "/road-safety", label: "Road Safety", key: "/road-safety" },
+    { href: "/road-safety", label: t("roadSafety"), key: "/road-safety" },
     { href: "/quiz", label: t("quiz"), key: "/quiz" },
     { href: "/simulation", label: t("simulation"), key: "/simulation" },
     { href: "/certificates", label: t("certificates"), key: "/certificates" },
     { href: "/events", label: t("events"), key: "/events" },
-    { href: "/certificates/regional", label: "Regional Event", key: "/certificates/regional" },
-    { href: "/admin", label: "Admin", key: "/admin" },
+    { href: "/certificates/regional", label: t("regionalEvent"), key: "/certificates/regional" },
+    { href: "/admin", label: t("admin"), key: "/admin" },
   ];
 
   if (!mounted) return null;
@@ -57,7 +57,7 @@ export default function Nav() {
             <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-emerald-200 bg-white shadow-[0_8px_18px_rgba(13,148,94,0.18)]">
               <Image
                 src="/assets/leadership/CM.png"
-                alt="Chief Minister of Telangana"
+                alt={t("chiefMinisterAlt") || "Chief Minister of Telangana"}
                 width={48}
                 height={48}
                 className="h-12 w-12 rounded-full object-cover"
@@ -68,7 +68,7 @@ export default function Nav() {
               <div className="h-14 w-14 rounded-full border-2 border-emerald-200 bg-white flex items-center justify-center shadow-[0_8px_18px_rgba(13,148,94,0.18)]">
                 <Image
                   src="/assets/logo/Telangana-LOGO.png"
-                  alt="Telangana Government Logo"
+                  alt={t("telanganaGovernmentLogo") || "Telangana Government Logo"}
                   width={48}
                   height={48}
                   priority
@@ -79,7 +79,7 @@ export default function Nav() {
             <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-emerald-200 bg-white shadow-[0_8px_18px_rgba(13,148,94,0.18)]">
               <Image
                 src="/assets/minister/Sri-Ponnam-Prabhakar.jpg"
-                alt="Transport Minister of Telangana"
+                alt={t("transportMinisterAlt") || "Transport Minister of Telangana"}
                 width={48}
                 height={48}
                 className="h-12 w-12 rounded-full object-cover"
@@ -110,10 +110,30 @@ export default function Nav() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <div className="rs-pill-toggle">
+              {mounted && (
+                <>
+                  <button 
+                    data-active={i18n.language === "en"} 
+                    onClick={() => toggleLanguage("en")}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
+                  >
+                    EN
+                  </button>
+                  <button 
+                    data-active={i18n.language === "te"} 
+                    onClick={() => toggleLanguage("te")}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
+                  >
+                    TE
+                  </button>
+                </>
+              )}
+            </div>
             <button
               className="xl:hidden inline-flex h-11 w-11 items-center justify-center rounded-full border border-emerald-200 text-emerald-800 shadow-[0_8px_18px_rgba(0,123,79,0.15)]"
               onClick={() => setIsOpen(!isOpen)}
-              aria-label="Toggle menu"
+              aria-label={t("toggleMenu") || "Toggle menu"}
             >
               {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -139,6 +159,24 @@ export default function Nav() {
                   </Link>
                 );
               })}
+              <div className="flex items-center justify-center pt-2 border-t border-emerald-100 mt-2">
+                <div className="rs-pill-toggle">
+                  <button 
+                    data-active={i18n.language === "en"} 
+                    onClick={() => toggleLanguage("en")}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
+                  >
+                    EN
+                  </button>
+                  <button 
+                    data-active={i18n.language === "te"} 
+                    onClick={() => toggleLanguage("te")}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-full transition-all"
+                  >
+                    TE
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

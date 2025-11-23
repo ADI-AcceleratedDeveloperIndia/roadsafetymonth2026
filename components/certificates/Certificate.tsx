@@ -2,6 +2,7 @@
 
 import { forwardRef } from "react";
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 import { Playfair_Display, Inter } from "next/font/google";
 
 const playfair = Playfair_Display({
@@ -42,6 +43,7 @@ export interface CertificateData {
   details?: string;
   eventName?: string;
   referenceId?: string;
+  language?: string; // "en" or "te"
   regionalAuthority?: {
     officerName: string;
     officerTitle: string;
@@ -49,62 +51,43 @@ export interface CertificateData {
   };
 }
 
-const CERTIFICATE_TYPES: Record<
-  CertificateCode,
-  {
-    title: string;
-    subtitle: string;
-    body: string;
-  }
-> = {
-  ORG: {
-    title: "Organiser Appreciation Certificate",
-    subtitle: "Honouring outstanding leadership during Telangana Road Safety Month 2026",
-    body: "In recognition of exemplary efforts in planning, conducting, and promoting impactful road safety initiatives that created lasting awareness within the community.",
-  },
-  PAR: {
-    title: "Participant Certificate",
-    subtitle: "Acknowledging active participation in Telangana Road Safety Month 2026",
-    body: "Awarded for enthusiastic involvement in awareness drives, workshops, and activities that championed safer roads for all citizens of Telangana.",
-  },
-  QUIZ: {
-    title: "Quiz Merit Certificate",
-    subtitle: "Celebrating excellence in the Telangana Road Safety Knowledge Quiz",
-    body: "Presented for outstanding performance in the Road Safety Quiz, demonstrating deep understanding of traffic regulations, safe driving behaviours, and citizen responsibilities.",
-  },
-  SIM: {
-    title: "Simulation Completion Certificate",
-    subtitle: "Recognising successful completion of interactive road safety simulations",
-    body: "Awarded for hands-on learning and demonstration of best practices in simulated traffic scenarios, reinforcing disciplined road usage.",
-  },
-  VOL: {
-    title: "Volunteer Certificate",
-    subtitle: "Honouring dedicated service during Telangana Road Safety Month 2026",
-    body: "Presented in appreciation of voluntary contributions, community outreach, and unwavering support in spreading road safety awareness.",
-  },
-  SCH: {
-    title: "School Contributor Certificate",
-    subtitle: "Recognising schools that championed Road Safety Month initiatives",
-    body: "Awarded for organising road safety programmes, awareness sessions, and student-driven campaigns that fostered a culture of safety within the institution.",
-  },
-  COL: {
-    title: "College Coordinator Certificate",
-    subtitle: "Appreciating leadership in collegiate road safety initiatives",
-    body: "Presented to coordinators who mobilised student communities, led campaigns, and ensured the success of Road Safety Month engagements on campus.",
-  },
-  TOPPER: {
-    title: "Simulation Topper Certificate",
-    subtitle: "Celebrating top performance in Telangana Road Safety Month simulations",
-    body: "Awarded to top-performing individuals who excelled in interactive simulations, demonstrating exceptional mastery of safe road behaviour and disciplined decision-making.",
-  },
-};
+// Certificate content will be loaded from translations
 
 interface CertificateProps {
   data: CertificateData;
 }
 
 const Certificate = forwardRef<HTMLDivElement, CertificateProps>(({ data }, ref) => {
-  const config = CERTIFICATE_TYPES[data.certificateType] ?? CERTIFICATE_TYPES.ORG;
+  const { t, i18n } = useTranslation("common");
+  const { t: tc } = useTranslation("content");
+  
+  // Use language from data or current i18n language
+  const lang = data.language || i18n.language || "en";
+  const isTelugu = lang === "te";
+  
+  // Get certificate content from translations
+  const getCertificateConfig = () => {
+    const typeMap: Record<CertificateCode, { titleKey: string; subtitleKey: string; bodyKey: string }> = {
+      ORG: { titleKey: "certificateOrgTitle", subtitleKey: "certificateOrgSubtitle", bodyKey: "certificateOrgBody" },
+      PAR: { titleKey: "certificateParTitle", subtitleKey: "certificateParSubtitle", bodyKey: "certificateParBody" },
+      QUIZ: { titleKey: "certificateQuizTitle", subtitleKey: "certificateQuizSubtitle", bodyKey: "certificateQuizBody" },
+      SIM: { titleKey: "certificateSimTitle", subtitleKey: "certificateSimSubtitle", bodyKey: "certificateSimBody" },
+      VOL: { titleKey: "certificateVolTitle", subtitleKey: "certificateVolSubtitle", bodyKey: "certificateVolBody" },
+      SCH: { titleKey: "certificateSchTitle", subtitleKey: "certificateSchSubtitle", bodyKey: "certificateSchBody" },
+      COL: { titleKey: "certificateColTitle", subtitleKey: "certificateColSubtitle", bodyKey: "certificateColBody" },
+      TOPPER: { titleKey: "certificateTopperTitle", subtitleKey: "certificateTopperSubtitle", bodyKey: "certificateTopperBody" },
+    };
+    
+    const keys = typeMap[data.certificateType] || typeMap.ORG;
+    
+    return {
+      title: tc(keys.titleKey) || "Certificate",
+      subtitle: tc(keys.subtitleKey) || "",
+      body: tc(keys.bodyKey) || "",
+    };
+  };
+  
+  const config = getCertificateConfig();
 
   return (
     <div
@@ -147,18 +130,18 @@ const Certificate = forwardRef<HTMLDivElement, CertificateProps>(({ data }, ref)
               {[
                 {
                   photo: "/assets/leadership/CM.png",
-                  name: "Sri Anumula Revanth Reddy Garu",
-                  title: "Hon'ble Chief Minister",
+                  name: isTelugu ? tc("chiefMinisterName") : "Sri Anumula Revanth Reddy Garu",
+                  title: isTelugu ? tc("honChiefMinister") : "Hon'ble Chief Minister",
                 },
                 {
                   photo: "/assets/minister/Sri-Ponnam-Prabhakar.jpg",
-                  name: "Sri Ponnam Prabhakar Garu",
-                  title: "Hon'ble Minister for Transport & BC Welfare",
+                  name: isTelugu ? tc("transportMinisterName") : "Sri Ponnam Prabhakar Garu",
+                  title: isTelugu ? tc("honMinisterTransportBCWelfare") : "Hon'ble Minister for Transport & BC Welfare",
                 },
                 data.regionalAuthority && {
                   photo: data.regionalAuthority.photo,
-                  name: data.regionalAuthority.officerName,
-                  title: data.regionalAuthority.officerTitle,
+                  name: data.regionalAuthority.officerName, // Keep as-is (user-entered)
+                  title: data.regionalAuthority.officerTitle, // Keep as-is (user-entered)
                 },
               ]
                 .filter(Boolean)
@@ -195,13 +178,13 @@ const Certificate = forwardRef<HTMLDivElement, CertificateProps>(({ data }, ref)
           {/* Recipient */}
           <div className="mt-10 text-center">
             <p className={`${inter.className} text-sm uppercase tracking-[0.3em] text-gray-500`}>
-              Presented to
+              {isTelugu ? "ప్రదానం చేయబడింది" : "Presented to"}
             </p>
             <p className={`${playfair.className} mt-4 text-3xl md:text-4xl font-semibold text-green-900`}>
               {data.fullName}
             </p>
             <p className={`${inter.className} mt-2 text-base text-gray-600`}>
-              {data.district && `District: ${data.district}`}
+              {data.district && (isTelugu ? `జిల్లా: ${data.district}` : `District: ${data.district}`)}
             </p>
           </div>
 
@@ -217,28 +200,55 @@ const Certificate = forwardRef<HTMLDivElement, CertificateProps>(({ data }, ref)
             )}
             {data.score && (
               <p className={`${inter.className} mt-4 text-base text-green-700 font-semibold`}>
-                Achievement: {data.score}
+                {isTelugu ? "సాధన:" : "Achievement:"} {data.score}
               </p>
             )}
             {data.eventName && (
               <p className={`${inter.className} mt-2 text-base text-gray-700 italic`}>
-                Event / Programme: {data.eventName}
+                {isTelugu ? "కార్యక్రమం / ప్రోగ్రామ్:" : "Event / Programme:"} {data.eventName}
               </p>
             )}
+            {/* Note: eventName is kept as-is (English) per user requirement */}
           </div>
 
           {/* Footer */}
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 items-end gap-6 text-center">
-            <div className="space-y-2">
-              <div className="border-b border-gray-300" />
-              <p className={`${inter.className} text-sm text-gray-600`}>Date of Issue</p>
-              <p className={`${inter.className} font-semibold text-gray-800`}>
-                {new Date(data.issueDate).toLocaleDateString("en-IN", {
-                  day: "2-digit",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </p>
+            <div className="space-y-4">
+              {/* Deputy Transport Commissioner Signature - Left Side - Only for Regional Certificates */}
+              {data.regionalAuthority && (
+                <div className="flex flex-col items-center space-y-1 mb-4">
+                  <Image
+                    src="/assets/signatures/Official1.png"
+                    alt="Deputy Transport Commissioner Signature"
+                    width={120}
+                    height={50}
+                    className="h-10 w-auto object-contain mb-2"
+                    unoptimized
+                  />
+                  <div className="space-y-1">
+                    <p className={`${inter.className} font-semibold text-gray-800 text-sm`}>
+                      {isTelugu ? "పి.పురుషోత్తం" : "P.Purushottham"}
+                    </p>
+                    <p className={`${inter.className} text-xs text-gray-600`}>
+                      {isTelugu ? "డిప్యూటీ ట్రాన్స్పోర్ట్ కమిషనర్, కరీంనగర్" : "Deputy Transport Commissioner, Karimnagar"}
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              <div className="space-y-2">
+                <div className="border-b border-gray-300" />
+                <p className={`${inter.className} text-sm text-gray-600`}>
+                  {isTelugu ? "జారీ తేదీ" : "Date of Issue"}
+                </p>
+                <p className={`${inter.className} font-semibold text-gray-800`}>
+                  {new Date(data.issueDate).toLocaleDateString(isTelugu ? "te-IN" : "en-IN", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+              </div>
             </div>
 
             <div className="flex flex-col items-center space-y-1">
@@ -252,25 +262,53 @@ const Certificate = forwardRef<HTMLDivElement, CertificateProps>(({ data }, ref)
               />
               <div className="mt-3 space-y-1">
                 <p className={`${inter.className} font-semibold text-gray-800 text-sm`}>
-                  Sri Ponnam Prabhakar Garu
+                  {isTelugu ? tc("transportMinisterName") : "Sri Ponnam Prabhakar Garu"}
                 </p>
                 <p className={`${inter.className} text-xs text-gray-600`}>
-                  Hon&apos;ble Minister for Transport & BC Welfare
+                  {isTelugu ? tc("honMinisterTransportBCWelfare") : "Hon'ble Minister for Transport & BC Welfare"}
                 </p>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="border-b border-gray-300" />
-              <p className={`${inter.className} text-sm text-gray-600`}>Reference ID</p>
-              <p className={`${inter.className} font-semibold text-gray-800`}>
-                {data.referenceId || "To be assigned"}
-              </p>
+            <div className="space-y-4">
+              {/* Deputy Transport Commissioner Signature - Right Side - Only for Regional Certificates */}
+              {data.regionalAuthority && (
+                <div className="flex flex-col items-center space-y-1 mb-4">
+                  <Image
+                    src="/assets/signatures/Official2.png"
+                    alt="Deputy Transport Commissioner Signature"
+                    width={120}
+                    height={50}
+                    className="h-10 w-auto object-contain mb-2"
+                    unoptimized
+                  />
+                  <div className="space-y-1">
+                    <p className={`${inter.className} font-semibold text-gray-800 text-sm`}>
+                      {isTelugu ? "పి.పురుషోత్తం" : "P.Purushottham"}
+                    </p>
+                    <p className={`${inter.className} text-xs text-gray-600`}>
+                      {isTelugu ? "డిప్యూటీ ట్రాన్స్పోర్ట్ కమిషనర్, కరీంనగర్" : "Deputy Transport Commissioner, Karimnagar"}
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              <div className="space-y-2">
+                <div className="border-b border-gray-300" />
+                <p className={`${inter.className} text-sm text-gray-600`}>
+                  {isTelugu ? "రిఫరెన్స్ ID" : "Reference ID"}
+                </p>
+                <p className={`${inter.className} font-semibold text-gray-800`}>
+                  {data.referenceId || (isTelugu ? "కేటాయించబడాలి" : "To be assigned")}
+                </p>
+              </div>
             </div>
           </div>
 
           <div className={`${inter.className} mt-8 text-center text-sm text-gray-600`}>
-            Issued by the Transport Department, Government of Telangana
+            {isTelugu 
+              ? "తెలంగాణ ప్రభుత్వం, రవాణా శాఖ ద్వారా జారీ చేయబడింది"
+              : "Issued by the Transport Department, Government of Telangana"}
           </div>
         </div>
       </div>

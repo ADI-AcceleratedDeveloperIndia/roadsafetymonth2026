@@ -34,7 +34,27 @@
   "error": "Error",
   "success": "Success",
   "road safety": "Road Safety",
-  "regional event": "Regional Event"
+  "regional event": "Regional Event",
+  "roadSafety": "Road Safety",
+  "regionalEvent": "Regional Event",
+  "toggleMenu": "Toggle menu",
+  "chiefMinisterAlt": "Chief Minister of Telangana",
+  "transportMinisterAlt": "Transport Minister of Telangana",
+  "telanganaGovernmentLogo": "Telangana Government Logo",
+  "quickLinks": "Quick Links",
+  "resources": "Resources",
+  "contact": "Contact",
+  "transportDepartment": "Transport Department",
+  "empoweringCitizens": "Empowering citizens, students, and organizations to build a safer road culture across Telangana.",
+  "generateCertificateLink": "Generate Certificate",
+  "verifyCertificateLink": "Verify Certificate",
+  "logEventLink": "Log Event",
+  "interactiveSimulations": "Interactive Simulations",
+  "allRightsReserved": "© 2025-2026 Telangana Road Safety Month. All rights reserved.",
+  "designedForAccessibility": "Designed for accessibility and youth engagement.",
+  "driveSafe": "Drive Safe • Walk Alert • Arrive Alive",
+  "transportDepartmentFooter": "Transport Department | Government of Telangana",
+  "presentation": "Presentation"
 }
 
 

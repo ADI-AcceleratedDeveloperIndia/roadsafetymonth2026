@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import Certificate, { CertificateCode, CertificateData } from "@/components/certificates/Certificate";
 import { getRegionalAuthority } from "@/lib/regional";
@@ -19,22 +20,27 @@ const safeDecode = (value: string | null) => {
   }
 };
 
+function LoadingFallback() {
+  const { t: tc } = useTranslation("content");
+  return (
+    <div className="rs-container py-20 flex flex-col items-center gap-4 text-center">
+      <Award className="h-6 w-6 animate-spin text-emerald-600" />
+      <p className="text-slate-600">{tc("loadingCertificatePreview") || "Loading certificate preview..."}</p>
+    </div>
+  );
+}
+
 export default function CertificatePreviewPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="rs-container py-20 flex flex-col items-center gap-4 text-center">
-          <Award className="h-6 w-6 animate-spin text-emerald-600" />
-          <p className="text-slate-600">Loading certificate preview...</p>
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingFallback />}>
       <CertificatePreviewContent />
     </Suspense>
   );
 }
 
 function CertificatePreviewContent() {
+  const { t } = useTranslation("common");
+  const { t: tc } = useTranslation("content");
   const router = useRouter();
   const searchParams = useSearchParams();
   const certificateRef = useRef<HTMLDivElement>(null);
@@ -61,6 +67,7 @@ function CertificatePreviewContent() {
       details: safeDecode(searchParams.get("details")) || undefined,
       eventName: safeDecode(searchParams.get("event")) || undefined,
       referenceId: safeDecode(searchParams.get("ref")) || undefined,
+      language: searchParams.get("lang") || undefined,
       regionalAuthority: regionalAuthority
         ? {
             officerName: regionalAuthority.officerName,
@@ -80,7 +87,7 @@ function CertificatePreviewContent() {
       await exportCertificateToPdf(certificateRef.current, `${data.fullName.replace(/\s+/g, "_")}_certificate.pdf`);
     } catch (error) {
       console.error("Certificate download failed:", error);
-      setDownloadError("Could not generate the PDF. Please retry after a few seconds.");
+      setDownloadError(tc("couldNotGeneratePdf") || "Could not generate the PDF. Please retry after a few seconds.");
     } finally {
       setIsDownloading(false);
     }
@@ -91,25 +98,25 @@ function CertificatePreviewContent() {
       <div className="rs-card p-8 bg-gradient-to-br from-emerald-50 to-white flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div className="space-y-2">
           <span className="rs-chip flex items-center gap-2">
-            <Award className="h-4 w-4" /> Certificate Preview
+            <Award className="h-4 w-4" /> {tc("certificatePreview") || "Certificate Preview"}
           </span>
-          <h1 className="text-3xl font-semibold text-emerald-900">Review & Download</h1>
+          <h1 className="text-3xl font-semibold text-emerald-900">{tc("reviewDownload") || "Review & Download"}</h1>
           <p className="text-slate-600 max-w-2xl">
-            Your certificate is ready. Click the download button to save it as a PDF file on your device.
+            {tc("yourCertificateIsReady") || "Your certificate is ready. Click the download button to save it as a PDF file on your device."}
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
           <Button variant="outline" onClick={() => router.push("/certificates/generate")} className="gap-2">
-            <ArrowLeft className="h-4 w-4" /> Back to Form
+            <ArrowLeft className="h-4 w-4" /> {tc("backToForm") || "Back to Form"}
           </Button>
           <Button onClick={handleDownload} className="rs-btn-primary gap-2" disabled={isDownloading}>
             {isDownloading ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" /> Generating PDF...
+                <Loader2 className="h-4 w-4 animate-spin" /> {tc("generatingPdf") || "Generating PDF..."}
               </>
             ) : (
               <>
-                <Download className="h-4 w-4" /> Download PDF
+                <Download className="h-4 w-4" /> {tc("downloadPdf") || "Download PDF"}
               </>
             )}
           </Button>

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 import { generateReferenceId } from "@/lib/reference";
 
 type GuideSection = {
@@ -127,6 +128,9 @@ const GUIDE_SECTIONS: GuideSection[] = [
 type GuideProgress = Record<string, boolean[]>;
 
 export default function GuidesPage() {
+  const { t } = useTranslation("common");
+  const { t: tc } = useTranslation("content");
+  
   const [progress, setProgress] = useState<GuideProgress>(() =>
     GUIDE_SECTIONS.reduce((acc, section) => {
       acc[section.id] = section.steps.map(() => false);
@@ -171,20 +175,19 @@ export default function GuidesPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl">
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-green-800 mb-3">Safety Guides</h1>
+        <h1 className="text-4xl font-bold text-green-800 mb-3">{tc("safetyGuides") || "Safety Guides"}</h1>
         <p className="text-gray-600 max-w-3xl mx-auto">
-          Tap “Yes” to confirm each habit. Only after you respond will the reinforcement appear — helping you actively
-          remember the point. A reference ID unlocks once you acknowledge every habit across all sections.
+          {tc("tapYesToConfirmHabit") || "Tap \"Yes\" to confirm each habit. Only after you respond will the reinforcement appear — helping you actively remember the point. A reference ID unlocks once you acknowledge every habit across all sections."}
         </p>
       </div>
 
       <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
         <p className="text-sm font-medium text-gray-700">
-          Progress: <span className="text-green-700">{completedSteps} / {totalSteps}</span>
+          {tc("progress") || "Progress"}: <span className="text-green-700">{completedSteps} / {totalSteps}</span>
         </p>
         {!referenceId && (
           <p className="text-xs text-gray-500">
-            Keep going! The completion ID appears automatically after all prompts are acknowledged.
+            {tc("keepGoingCompletionId") || "Keep going! The completion ID appears automatically after all prompts are acknowledged."}
           </p>
         )}
       </div>
@@ -200,7 +203,7 @@ export default function GuidesPage() {
                   <CardTitle>{section.title}</CardTitle>
                   <CardDescription>{section.description}</CardDescription>
                 </div>
-                {sectionCompleted && <Badge variant="default">Section completed</Badge>}
+                {sectionCompleted && <Badge variant="default">{tc("sectionCompleted") || "Section completed"}</Badge>}
               </CardHeader>
               <CardContent className="space-y-4">
                 {section.steps.map((step, index) => {
@@ -218,7 +221,7 @@ export default function GuidesPage() {
                           onClick={() => handleYes(section.id, index)}
                           disabled={acknowledged}
                         >
-                          {acknowledged ? "Noted" : "Yes"}
+                          {acknowledged ? (tc("noted") || "Noted") : (tc("yes") || "Yes")}
                         </Button>
                       </div>
                       {acknowledged && (
@@ -239,10 +242,10 @@ export default function GuidesPage() {
         <Card className="mt-10 bg-green-50 border-green-200">
           <CardContent className="py-6 text-center space-y-2">
             <p className="text-lg font-semibold text-green-800">
-              Fantastic! You consciously revisited every habit in this guide.
+              {tc("fantasticRevisitedHabits") || "Fantastic! You consciously revisited every habit in this guide."}
             </p>
             <p className="text-sm text-green-800">
-              Note your completion reference ID and share it with your coordinator if asked.
+              {tc("noteCompletionReferenceId") || "Note your completion reference ID and share it with your coordinator if asked."}
             </p>
             <Badge variant="default" className="text-base px-4 py-2">
               {referenceId}

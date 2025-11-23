@@ -2,40 +2,43 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslation } from "react-i18next";
 import HelmetPrototype from "./HelmetPrototype";
 import TripleRidingSimulation from "./TripleRidingSimulation";
 import DrunkDriveSimulation from "./DrunkDriveSimulation";
 import { BrainCircuit, Sparkles, ShieldCheck, WineOff } from "lucide-react";
 
 export default function SimulationPage() {
+  const { t } = useTranslation("common");
+  const { t: tc } = useTranslation("content");
+  
   return (
     <div className="rs-container py-12 space-y-12">
       <div className="rs-card p-8 bg-gradient-to-br from-emerald-50 to-white flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div className="space-y-4">
           <span className="rs-chip flex items-center gap-2">
-            <BrainCircuit className="h-4 w-4" /> Simulation Lab
+            <BrainCircuit className="h-4 w-4" /> {tc("simulationLab")}
           </span>
-          <h1 className="text-3xl font-semibold text-emerald-900">Spot the Violation → Fix It!</h1>
+          <h1 className="text-3xl font-semibold text-emerald-900">{tc("spotTheViolationFixIt") || "Spot the Violation → Fix It!"}</h1>
           <p className="text-slate-600 max-w-2xl">
-            Drag-and-drop micro learning challenges that help you identify and correct common road safety violations.
-            Earn completion reference IDs for every simulation you master.
+            {tc("dragAndDropLearning") || "Drag-and-drop micro learning challenges that help you identify and correct common road safety violations. Earn completion reference IDs for every simulation you master."}
           </p>
         </div>
         <div className="rounded-2xl bg-white border border-emerald-100 p-5 shadow-sm text-sm text-emerald-700 space-y-3">
-          <p className="font-semibold flex items-center gap-2"><Sparkles className="h-4 w-4" /> Completion Rewards</p>
+          <p className="font-semibold flex items-center gap-2"><Sparkles className="h-4 w-4" /> {tc("completionRewards") || "Completion Rewards"}</p>
           <ul className="space-y-2 list-disc list-inside">
-            <li>Reference ID for each simulation completion</li>
-            <li>Instant feedback on safe decisions</li>
-            <li>Supports quiz & certificate progress</li>
+            <li>{tc("referenceIdForEachSimulation") || "Reference ID for each simulation completion"}</li>
+            <li>{tc("instantFeedbackOnSafeDecisions") || "Instant feedback on safe decisions"}</li>
+            <li>{tc("supportsQuizCertificateProgress") || "Supports quiz & certificate progress"}</li>
           </ul>
         </div>
       </div>
 
       <Card className="max-w-4xl mx-auto shadow-none border-none">
         <CardHeader className="text-center">
-          <CardTitle>Interactive Road Safety Simulations</CardTitle>
+          <CardTitle>{tc("interactiveRoadSafetySimulations") || "Interactive Road Safety Simulations"}</CardTitle>
           <CardDescription>
-            Choose a violation scenario and drag the suggested solutions onto the violation to transform the scene into a safe one.
+            {tc("chooseViolationScenario") || "Choose a violation scenario and drag the suggested solutions onto the violation to transform the scene into a safe one."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -67,7 +70,7 @@ export default function SimulationPage() {
                   <span className="sm:hidden">V3</span>
                 </TabsTrigger>
               </TabsList>
-              <p className="text-xs text-slate-500 text-center">Tap a violation above to switch the scenario.</p>
+              <p className="text-xs text-slate-500 text-center">{tc("tapViolationToSwitch") || "Tap a violation above to switch the scenario."}</p>
             </div>
 
             <TabsContent value="helmet" className="mt-6">
@@ -86,23 +89,23 @@ export default function SimulationPage() {
       </Card>
 
       <div className="rs-card p-6">
-        <h3 className="text-lg font-semibold text-emerald-900 mb-3">More scenarios arriving soon</h3>
+        <h3 className="text-lg font-semibold text-emerald-900 mb-3">{tc("moreScenariosArrivingSoon") || "More scenarios arriving soon"}</h3>
         <div className="grid md:grid-cols-2 gap-3 text-sm text-slate-600">
-          <span>• Wrong-side bike riding</span>
-          <span>• Signal jumping (bike)</span>
-          <span>• Drunk riding (bike)</span>
-          <span>• Give way to ambulance (car)</span>
-          <span>• Blocked zebra crossing (car)</span>
-          <span>• Parking on footpath (car)</span>
-          <span>• Overspeed in school zone (car)</span>
-          <span>• Tailgating (car)</span>
-          <span>• Jaywalking (pedestrian)</span>
-          <span>• Using phone while crossing</span>
-          <span>• Crossing during green</span>
-          <span>• Walking on road instead of footpath</span>
-          <span>• Wrong-side auto driving</span>
-          <span>• Blocking fire truck (vehicles)</span>
-          <span>• Zig-zag/rash overtaking (bike)</span>
+          <span>• {tc("scenarioWrongSideBike") || "Wrong-side bike riding"}</span>
+          <span>• {tc("scenarioSignalJumping") || "Signal jumping (bike)"}</span>
+          <span>• {tc("scenarioDrunkRiding") || "Drunk riding (bike)"}</span>
+          <span>• {tc("scenarioGiveWayAmbulance") || "Give way to ambulance (car)"}</span>
+          <span>• {tc("scenarioBlockedZebra") || "Blocked zebra crossing (car)"}</span>
+          <span>• {tc("scenarioParkingFootpath") || "Parking on footpath (car)"}</span>
+          <span>• {tc("scenarioOverspeedSchoolZone") || "Overspeed in school zone (car)"}</span>
+          <span>• {tc("scenarioTailgating") || "Tailgating (car)"}</span>
+          <span>• {tc("scenarioJaywalking") || "Jaywalking (pedestrian)"}</span>
+          <span>• {tc("scenarioPhoneWhileCrossing") || "Using phone while crossing"}</span>
+          <span>• {tc("scenarioCrossingDuringGreen") || "Crossing during green"}</span>
+          <span>• {tc("scenarioWalkingOnRoad") || "Walking on road instead of footpath"}</span>
+          <span>• {tc("scenarioWrongSideAuto") || "Wrong-side auto driving"}</span>
+          <span>• {tc("scenarioBlockingFireTruck") || "Blocking fire truck (vehicles)"}</span>
+          <span>• {tc("scenarioZigZagOvertaking") || "Zig-zag/rash overtaking (bike)"}</span>
         </div>
       </div>
     </div>

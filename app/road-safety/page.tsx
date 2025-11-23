@@ -5,6 +5,7 @@ import { BookOpenCheck, Activity } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 import { generateReferenceId } from "@/lib/reference";
 
 type Section = {
@@ -219,6 +220,9 @@ const PREVENTION_SECTIONS: Section[] = [
 type Progress = Record<string, boolean[]>;
 
 export default function RoadSafetyPage() {
+  const { t } = useTranslation("common");
+  const { t: tc } = useTranslation("content");
+  
   const [guideProgress, setGuideProgress] = useState<Progress>(() =>
     GUIDE_SECTIONS.reduce((acc, section) => {
       acc[section.id] = section.steps.map(() => false);
@@ -299,22 +303,21 @@ export default function RoadSafetyPage() {
       <section className="space-y-8">
         <div className="space-y-3 text-center md:text-left">
           <span className="rs-chip flex items-center gap-2 justify-center md:justify-start">
-            <BookOpenCheck className="h-4 w-4" /> Safety Guides
+            <BookOpenCheck className="h-4 w-4" /> {tc("safetyGuides") || "Safety Guides"}
           </span>
-          <h1 className="text-3xl md:text-4xl font-semibold text-emerald-900">Road Safety Guides for Everyone</h1>
+          <h1 className="text-3xl md:text-4xl font-semibold text-emerald-900">{tc("roadSafetyGuidesForEveryone") || "Road Safety Guides for Everyone"}</h1>
           <p className="text-slate-600 max-w-3xl">
-            Tap "Yes" to confirm each habit. Only after you respond will the reinforcement appear — helping you actively
-            remember the point. A reference ID unlocks once you acknowledge every habit across all sections.
+            {tc("tapYesToConfirmHabit") || "Tap \"Yes\" to confirm each habit. Only after you respond will the reinforcement appear — helping you actively remember the point. A reference ID unlocks once you acknowledge every habit across all sections."}
           </p>
         </div>
 
         <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
           <p className="text-sm font-medium text-slate-700">
-            Progress: <span className="text-emerald-700">{completedGuideSteps} / {totalGuideSteps}</span>
+            {tc("progress") || "Progress"}: <span className="text-emerald-700">{completedGuideSteps} / {totalGuideSteps}</span>
           </p>
           {!guideReferenceId && (
             <p className="text-xs text-slate-500">
-              Keep going! The completion ID appears automatically after all prompts are acknowledged.
+              {tc("keepGoingCompletionId") || "Keep going! The completion ID appears automatically after all prompts are acknowledged."}
             </p>
           )}
         </div>
@@ -330,7 +333,7 @@ export default function RoadSafetyPage() {
                     <CardTitle>{section.title}</CardTitle>
                     <CardDescription>{section.description}</CardDescription>
                   </div>
-                  {sectionCompleted && <Badge variant="default">Section completed</Badge>}
+                  {sectionCompleted && <Badge variant="default">{tc("sectionCompleted") || "Section completed"}</Badge>}
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {section.steps.map((step, index) => {
@@ -348,7 +351,7 @@ export default function RoadSafetyPage() {
                             onClick={() => handleGuideYes(section.id, index)}
                             disabled={acknowledged}
                           >
-                            {acknowledged ? "Noted" : "Yes"}
+                            {acknowledged ? (tc("noted") || "Noted") : (tc("yes") || "Yes")}
                           </Button>
                         </div>
                         {acknowledged && (
@@ -369,10 +372,10 @@ export default function RoadSafetyPage() {
           <Card className="bg-green-50 border-green-200">
             <CardContent className="py-6 text-center space-y-2">
               <p className="text-lg font-semibold text-green-800">
-                Fantastic! You consciously revisited every habit in this guide.
+                {tc("fantasticRevisitedHabits") || "Fantastic! You consciously revisited every habit in this guide."}
               </p>
               <p className="text-sm text-green-800">
-                Note your completion reference ID and share it with your coordinator if asked.
+                {tc("noteCompletionReferenceId") || "Note your completion reference ID and share it with your coordinator if asked."}
               </p>
               <Badge variant="default" className="text-base px-4 py-2">
                 {guideReferenceId}
@@ -386,21 +389,20 @@ export default function RoadSafetyPage() {
       <section className="space-y-8">
         <div className="space-y-3 text-center md:text-left">
           <span className="rs-chip flex items-center gap-2 justify-center md:justify-start">
-            <Activity className="h-4 w-4" /> Prevention Tips
+            <Activity className="h-4 w-4" /> {tc("preventionTips") || "Prevention Tips"}
           </span>
-          <h2 className="text-3xl md:text-4xl font-semibold text-emerald-900">Prevention &gt; Cure</h2>
+          <h2 className="text-3xl md:text-4xl font-semibold text-emerald-900">{tc("preventionGreaterThanCure") || "Prevention > Cure"}</h2>
           <p className="text-slate-600 max-w-3xl">
-            Safety is a chain of small decisions. Confirm each prevention step with "Yes" to reveal why it matters.
-            Finish every section to receive a reference ID acknowledging your commitment.
+            {tc("safetyIsChainOfDecisions") || "Safety is a chain of small decisions. Confirm each prevention step with \"Yes\" to reveal why it matters. Finish every section to receive a reference ID acknowledging your commitment."}
           </p>
         </div>
 
         <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
           <p className="text-sm font-medium text-slate-700">
-            Progress: <span className="text-amber-700">{completedPreventionSteps} / {totalPreventionSteps}</span>
+            {tc("progress") || "Progress"}: <span className="text-amber-700">{completedPreventionSteps} / {totalPreventionSteps}</span>
           </p>
           {!preventionReferenceId && (
-            <p className="text-xs text-slate-500">Complete all prompts to unlock your prevention reference ID.</p>
+            <p className="text-xs text-slate-500">{tc("completeAllPromptsPrevention") || "Complete all prompts to unlock your prevention reference ID."}</p>
           )}
         </div>
 
@@ -415,7 +417,7 @@ export default function RoadSafetyPage() {
                     <CardTitle>{section.title}</CardTitle>
                     <CardDescription>{section.description}</CardDescription>
                   </div>
-                  {sectionCompleted && <Badge variant="default">Section completed</Badge>}
+                  {sectionCompleted && <Badge variant="default">{tc("sectionCompleted") || "Section completed"}</Badge>}
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {section.steps.map((step, index) => {
@@ -434,7 +436,7 @@ export default function RoadSafetyPage() {
                             onClick={() => handlePreventionYes(section.id, index)}
                             disabled={acknowledged}
                           >
-                            {acknowledged ? "Noted" : "Yes"}
+                            {acknowledged ? (tc("noted") || "Noted") : (tc("yes") || "Yes")}
                           </Button>
                         </div>
                         {acknowledged && (
@@ -455,10 +457,10 @@ export default function RoadSafetyPage() {
           <Card className="bg-amber-50 border-amber-200">
             <CardContent className="py-6 text-center space-y-2">
               <p className="text-lg font-semibold text-amber-900">
-                Thank you for pledging to prevent incidents before they occur.
+                {tc("thankYouForPledging") || "Thank you for pledging to prevent incidents before they occur."}
               </p>
               <p className="text-sm text-amber-900">
-                Your prevention reference ID can be shared with campaign coordinators or event leads.
+                {tc("preventionReferenceIdCanBeShared") || "Your prevention reference ID can be shared with campaign coordinators or event leads."}
               </p>
               <Badge variant="secondary" className="text-base px-4 py-2">
                 {preventionReferenceId}
