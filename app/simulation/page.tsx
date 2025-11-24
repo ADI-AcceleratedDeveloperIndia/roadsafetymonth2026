@@ -6,7 +6,8 @@ import { useTranslation } from "react-i18next";
 import HelmetPrototype from "./HelmetPrototype";
 import TripleRidingSimulation from "./TripleRidingSimulation";
 import DrunkDriveSimulation from "./DrunkDriveSimulation";
-import { BrainCircuit, Sparkles, ShieldCheck, WineOff } from "lucide-react";
+import OverspeedSimulation from "./OverspeedSimulation";
+import { BrainCircuit, Sparkles, ShieldCheck, WineOff, Gauge } from "lucide-react";
 
 export default function SimulationPage() {
   const { t } = useTranslation("common");
@@ -44,7 +45,7 @@ export default function SimulationPage() {
         <CardContent>
           <Tabs defaultValue="helmet" className="w-full">
             <div className="space-y-4">
-              <TabsList className="grid w-full grid-cols-3 gap-2 bg-transparent p-0">
+              <TabsList className="grid w-full grid-cols-4 gap-2 bg-transparent p-0">
                 <TabsTrigger
                   value="helmet"
                   className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg flex items-center justify-center gap-2 rounded-lg border-2 border-emerald-200 bg-white px-3 py-3 text-sm font-semibold text-emerald-700 transition-all hover:border-emerald-400 hover:bg-emerald-50"
@@ -69,6 +70,14 @@ export default function SimulationPage() {
                   <span className="hidden sm:inline">Violation 3</span>
                   <span className="sm:hidden">V3</span>
                 </TabsTrigger>
+                <TabsTrigger
+                  value="overspeed"
+                  className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg flex items-center justify-center gap-2 rounded-lg border-2 border-emerald-200 bg-white px-3 py-3 text-sm font-semibold text-emerald-700 transition-all hover:border-emerald-400 hover:bg-emerald-50"
+                >
+                  <Gauge className="h-5 w-5" />
+                  <span className="hidden sm:inline">Violation 4</span>
+                  <span className="sm:hidden">V4</span>
+                </TabsTrigger>
               </TabsList>
               <p className="text-xs text-slate-500 text-center">{tc("tapViolationToSwitch") || "Tap a violation above to switch the scenario."}</p>
             </div>
@@ -83,6 +92,10 @@ export default function SimulationPage() {
 
             <TabsContent value="drunk" className="mt-6">
               <DrunkDriveSimulation />
+            </TabsContent>
+
+            <TabsContent value="overspeed" className="mt-6">
+              <OverspeedSimulation />
             </TabsContent>
           </Tabs>
         </CardContent>
