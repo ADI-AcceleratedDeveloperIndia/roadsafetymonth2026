@@ -164,7 +164,26 @@ export default function GuidesPage() {
       );
 
       if (updatedCompleted === totalGuideSteps && !guideReferenceId) {
-        setGuideReferenceId(generateReferenceId("GUIDE"));
+        // Save completion to database
+        fetch("/api/pages/complete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pageType: "guides" }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.referenceId) {
+              setGuideReferenceId(data.referenceId);
+            } else {
+              // Fallback: generate client-side reference ID
+              setGuideReferenceId(generateReferenceId("GUIDE"));
+            }
+          })
+          .catch((error) => {
+            console.error("Error saving completion:", error);
+            // Fallback: generate client-side reference ID
+            setGuideReferenceId(generateReferenceId("GUIDE"));
+          });
       }
 
       return updated;

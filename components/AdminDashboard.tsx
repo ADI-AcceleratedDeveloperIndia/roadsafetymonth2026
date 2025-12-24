@@ -2,11 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Award, FileText, Users, Download, Activity, MapPin, Plus, BookOpen, Copy, Check, CheckCircle2, XCircle, Loader2 } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Award, FileText, Users, Download, Activity, MapPin, BookOpen, Copy, Check, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -28,20 +24,9 @@ export default function AdminDashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [appreciations, setAppreciations] = useState<{ fullName: string; appreciationText: string; createdAt: string }[]>([]);
-  const [isCreateOrganiserOpen, setIsCreateOrganiserOpen] = useState(false);
-  const [organiserForm, setOrganiserForm] = useState({
-    name: "",
-    organisation: "",
-    mobileNumber: "",
-    eventLocation: "Karimnagar",
-    proposedEventDate: "",
-    eventType: "School" as "School" | "College" | "Public Awareness",
-  });
   const [copiedRefId, setCopiedRefId] = useState<string | null>(null);
   const [pendingOrganisers, setPendingOrganisers] = useState<any[]>([]);
   const [loadingPending, setLoadingPending] = useState(false);
-  const [registerLoading, setRegisterLoading] = useState(false);
-  const [registerSuccess, setRegisterSuccess] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -88,47 +73,6 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Export error:", error);
       alert("Failed to export");
-    }
-  };
-
-  const handleRegisterOrganiser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setRegisterLoading(true);
-    setRegisterSuccess(false);
-
-    try {
-      const response = await fetch("/api/organisers/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(organiserForm),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setRegisterSuccess(true);
-        setOrganiserForm({
-          name: "",
-          organisation: "",
-          mobileNumber: "",
-          eventLocation: "Karimnagar",
-          proposedEventDate: "",
-          eventType: "School",
-        });
-        // Refresh pending list
-        fetchPendingOrganisers();
-        setTimeout(() => {
-          setIsCreateOrganiserOpen(false);
-          setRegisterSuccess(false);
-        }, 2000);
-      } else {
-        alert(data.error || "Failed to register organiser");
-      }
-    } catch (error) {
-      console.error("Registration error:", error);
-      alert("Failed to register organiser");
-    } finally {
-      setRegisterLoading(false);
     }
   };
 
@@ -250,109 +194,6 @@ export default function AdminDashboard() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Dialog open={isCreateOrganiserOpen} onOpenChange={setIsCreateOrganiserOpen}>
-              <DialogTrigger asChild>
-                <Button className="rs-btn-primary gap-2">
-                  <Plus className="h-4 w-4" /> Register Organiser
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Organiser Self-Registration</DialogTitle>
-                  <DialogDescription>
-                    Register a new organiser. Status will be "Pending Approval" until admin approves.
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleRegisterOrganiser} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Organiser Name *</Label>
-                    <Input
-                      id="name"
-                      value={organiserForm.name}
-                      onChange={(e) => setOrganiserForm({ ...organiserForm, name: e.target.value })}
-                      placeholder="Enter organiser name"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="organisation">Organisation / School / College / NGO *</Label>
-                    <Input
-                      id="organisation"
-                      value={organiserForm.organisation}
-                      onChange={(e) => setOrganiserForm({ ...organiserForm, organisation: e.target.value })}
-                      placeholder="e.g., Karimnagar Government High School"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="mobileNumber">Mobile Number *</Label>
-                    <Input
-                      id="mobileNumber"
-                      type="tel"
-                      value={organiserForm.mobileNumber}
-                      onChange={(e) => setOrganiserForm({ ...organiserForm, mobileNumber: e.target.value })}
-                      placeholder="10-digit mobile number"
-                      required
-                      minLength={10}
-                      maxLength={10}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="eventLocation">Event Location *</Label>
-                    <Input
-                      id="eventLocation"
-                      value={organiserForm.eventLocation}
-                      disabled
-                      className="bg-slate-100"
-                    />
-                    <p className="text-xs text-slate-500">Currently limited to Karimnagar district only</p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="proposedEventDate">Proposed Event Date *</Label>
-                    <Input
-                      id="proposedEventDate"
-                      type="date"
-                      value={organiserForm.proposedEventDate}
-                      onChange={(e) => setOrganiserForm({ ...organiserForm, proposedEventDate: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="eventType">Event Type *</Label>
-                    <select
-                      id="eventType"
-                      value={organiserForm.eventType}
-                      onChange={(e) => setOrganiserForm({ ...organiserForm, eventType: e.target.value as any })}
-                      className="w-full h-11 rounded-lg border border-emerald-200 px-3"
-                      required
-                    >
-                      <option value="School">School</option>
-                      <option value="College">College</option>
-                      <option value="Public Awareness">Public Awareness</option>
-                    </select>
-                  </div>
-                  {registerSuccess && (
-                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800">
-                      Registration submitted! Awaiting admin approval.
-                    </div>
-                  )}
-                  <div className="flex gap-2 pt-4">
-                    <Button type="button" variant="outline" onClick={() => setIsCreateOrganiserOpen(false)} className="flex-1">
-                      Cancel
-                    </Button>
-                    <Button type="submit" className="flex-1 rs-btn-primary" disabled={registerLoading}>
-                      {registerLoading ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" /> Submitting...
-                        </>
-                      ) : (
-                        "Register"
-                      )}
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
             <p className="text-sm text-emerald-700">{loading ? "Syncing..." : "Data refreshed"}</p>
           </div>
         </div>

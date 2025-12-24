@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import { Menu, X, Home, Scale, GraduationCap, ShieldCheck, FileText, Cpu, Award, CalendarDays, ShieldHalf, MapPin, BookOpenCheck, Activity, BookOpen } from "lucide-react";
+import { Menu, X, Home, Scale, GraduationCap, ShieldCheck, FileText, Cpu, Award, CalendarDays, ShieldHalf, MapPin, BookOpenCheck, Activity, BookOpen, UserPlus } from "lucide-react";
 
 const navIcons: Record<string, ReactNode> = {
   "/": <Home className="h-4 w-4" />,
@@ -17,7 +17,7 @@ const navIcons: Record<string, ReactNode> = {
   "/simulation": <Cpu className="h-4 w-4" />,
   "/certificates": <Award className="h-4 w-4" />,
   "/events": <CalendarDays className="h-4 w-4" />,
-  "/admin": <FileText className="h-4 w-4" />,
+  "/organiser-register": <UserPlus className="h-4 w-4" />,
 };
 
 export default function Nav() {
@@ -46,7 +46,7 @@ export default function Nav() {
     { href: "/prevention", label: "Prevention", bracket: "Graduation", key: "/prevention" },
     { href: "/events", label: t("events"), bracket: null, key: "/events" },
     { href: "/certificates", label: t("certificates"), bracket: null, key: "/certificates" },
-    { href: "/admin", label: t("admin"), bracket: null, key: "/admin" },
+    { href: "/organiser-register", label: "Organiser", bracket: null, key: "/organiser-register" },
   ];
 
   if (!mounted) return null;

@@ -145,7 +145,26 @@ export default function PreventionPage() {
       );
 
       if (updatedCompleted === totalSteps && !referenceId) {
-        setReferenceId(generateReferenceId("PREVENT"));
+        // Save completion to database
+        fetch("/api/pages/complete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pageType: "prevention" }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.referenceId) {
+              setReferenceId(data.referenceId);
+            } else {
+              // Fallback: generate client-side reference ID
+              setReferenceId(generateReferenceId("PREVENT"));
+            }
+          })
+          .catch((error) => {
+            console.error("Error saving completion:", error);
+            // Fallback: generate client-side reference ID
+            setReferenceId(generateReferenceId("PREVENT"));
+          });
       }
 
       return updated;
