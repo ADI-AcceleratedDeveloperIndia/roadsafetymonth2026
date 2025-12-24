@@ -40,7 +40,23 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    const certificateId = uuidv4();
+    // Map database type to certificate code
+    const typeToCode: Record<string, string> = {
+      organiser: "ORG",
+      participant: "PAR",
+      merit: "QUIZ", // Merit certificates use QUIZ code
+    };
+    const certCode = typeToCode[validated.type] || "ORG";
+
+    // Generate Certificate ID in format: KRMR-RSM-2026-PDL-RHL-{CERT_TYPE}-{NUMBER}
+    // Count existing certificates of this type to get next number
+    const certCount = await Certificate.countDocuments({ 
+      certificateId: { $regex: `^KRMR-RSM-2026-PDL-RHL-${certCode}-` } 
+    });
+    const nextCertNumber = certCount + 1;
+    const certNumberStr = nextCertNumber.toString().padStart(5, "0");
+    const certificateId = `KRMR-RSM-2026-PDL-RHL-${certCode}-${certNumberStr}`;
+
     const appOrigin = process.env.APP_ORIGIN || "http://localhost:3000";
 
     const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";

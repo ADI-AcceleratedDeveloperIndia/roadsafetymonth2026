@@ -37,6 +37,7 @@ const generateSchema = z.object({
   score: z.string().optional(),
   details: z.string().optional(),
   eventName: z.string().optional(),
+  eventId: z.string().optional(), // Optional event ID for organiser-led events
   referenceId: z.string().min(1, "Reference ID is required"),
 });
 
@@ -106,21 +107,81 @@ function CertificateGenerateContent() {
     formState: { errors },
   } = useForm<GenerateForm>({
     resolver: zodResolver(generateSchema),
-    defaultValues: {
-      certificateType: defaultType as GenerateForm["certificateType"],
-      fullName: "",
-      district: DISTRICT, // Hardcoded to Karimnagar
-      issueDate: new Date().toISOString().slice(0, 10),
-      email: "",
-      score: "",
-      details: "",
-      eventName: "",
-      referenceId: referenceFromQuery || generateReferenceId(defaultType || "CERT"),
-    },
+      defaultValues: {
+        certificateType: defaultType as GenerateForm["certificateType"],
+        fullName: "",
+        district: DISTRICT, // Hardcoded to Karimnagar
+        issueDate: new Date().toISOString().slice(0, 10),
+        email: "",
+        score: "",
+        details: "",
+        eventName: "",
+        eventId: "", // Optional event ID for organiser events
+        referenceId: referenceFromQuery || "", // Will be generated on mount if empty
+      },
   });
 
   const selectedType = watch("certificateType");
   const districtValue = watch("district");
+  const referenceIdValue = watch("referenceId");
+
+  // Auto-generate reference ID on mount if empty
+  useEffect(() => {
+    if (!referenceIdValue && selectedType) {
+      fetch("/api/certificates/generate-reference-id", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ certificateType: selectedType }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.referenceId) {
+            setValue("referenceId", data.referenceId);
+          } else {
+            // Fallback to old format
+            setValue("referenceId", generateReferenceId(selectedType || "CERT"));
+          }
+        })
+        .catch(() => {
+          // Fallback to old format on error
+          setValue("referenceId", generateReferenceId(selectedType || "CERT"));
+        });
+    }
+  }, [selectedType, referenceIdValue, setValue]);
+
+  const [eventDetails, setEventDetails] = useState<{ title: string; eventId: string } | null>(null);
+  const [loadingEvent, setLoadingEvent] = useState(false);
+
+  // Fetch event details if eventId is provided
+  useEffect(() => {
+    const eventId = searchParams.get("eventId");
+    if (eventId) {
+      setLoadingEvent(true);
+      fetch(`/api/events/${eventId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.event) {
+            setEventDetails({ title: data.event.title, eventId: data.event.eventId || eventId });
+            setValue("eventId", eventId);
+            setValue("eventName", data.event.title); // Pre-fill event name for organiser events
+          }
+        })
+        .catch(() => {
+          // If event not found, treat as direct user
+          const eventName = searchParams.get("event");
+          if (eventName) {
+            setValue("eventName", safeDecode(eventName)); // Generic event name for direct users
+          }
+        })
+        .finally(() => setLoadingEvent(false));
+    } else {
+      // Direct user - use generic event name from URL or default
+      const eventName = searchParams.get("event");
+      if (eventName) {
+        setValue("eventName", safeDecode(eventName));
+      }
+    }
+  }, [searchParams, setValue]);
 
   useEffect(() => {
     const paramsToUpdate = [
@@ -131,7 +192,6 @@ function CertificateGenerateContent() {
       { key: "email", setter: (val: string) => setValue("email", safeDecode(val)) },
       { key: "score", setter: (val: string) => setValue("score", safeDecode(val)) },
       { key: "details", setter: (val: string) => setValue("details", safeDecode(val)) },
-      { key: "event", setter: (val: string) => setValue("eventName", safeDecode(val)) },
       { key: "ref", setter: (val: string) => setValue("referenceId", safeDecode(val)) },
     ];
 
@@ -282,14 +342,32 @@ function CertificateGenerateContent() {
                 className="h-11 rounded-lg border border-emerald-200"
                 {...register("referenceId")}
               />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setValue("referenceId", generateReferenceId(selectedType || "CERT"))}
-                className="sm:w-auto"
-              >
-                {tc("regenerate") || "Regenerate"}
-              </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        const response = await fetch("/api/certificates/generate-reference-id", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ certificateType: selectedType }),
+                        });
+                        const data = await response.json();
+                        if (response.ok && data.referenceId) {
+                          setValue("referenceId", data.referenceId);
+                        } else {
+                          // Fallback to old format if API fails
+                          setValue("referenceId", generateReferenceId(selectedType || "CERT"));
+                        }
+                      } catch (error) {
+                        // Fallback to old format on error
+                        setValue("referenceId", generateReferenceId(selectedType || "CERT"));
+                      }
+                    }}
+                    className="sm:w-auto"
+                  >
+                    {tc("regenerate") || "Regenerate"}
+                  </Button>
             </div>
             <p className="text-xs text-slate-500">
               {tc("shareReferenceIdWithRecipients") || "Share this reference ID with recipients. They can reuse it to download or verify certificates."}
@@ -355,7 +433,27 @@ function CertificateGenerateContent() {
               className="h-11 rounded-lg border border-emerald-200"
               {...register("eventName")}
             />
+            <p className="text-xs text-slate-500">
+              {eventDetails 
+                ? `Organiser Event: ${eventDetails.title}` 
+                : "For direct users, this will show generic event names like 'Online Quiz Event'"}
+            </p>
           </div>
+
+          {/* Event ID field - only shown for organiser events */}
+          {eventDetails && (
+            <div className="space-y-2">
+              <Label htmlFor="eventId" className="text-sm font-semibold text-emerald-900">Event ID</Label>
+              <Input
+                id="eventId"
+                value={eventDetails.eventId}
+                disabled
+                className="h-11 rounded-lg border border-emerald-200 bg-gray-100"
+                {...register("eventId")}
+              />
+              <p className="text-xs text-slate-500">This Event ID was provided by your organiser</p>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="details" className="text-sm font-semibold text-emerald-900">{tc("additionalNotes") || "Additional Notes"}</Label>

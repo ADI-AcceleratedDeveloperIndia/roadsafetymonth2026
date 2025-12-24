@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import DraggableItems from "./DraggableItems";
 
 const BASE_DIMENSIONS = { width: 500, height: 500 };
@@ -12,7 +13,15 @@ const TARGET_HITBOX = {
 };
 const DISCIPLINE_SIZE = { width: 120, height: 100 };
 
-export default function TripleRidingSimulation() {
+interface TripleRidingSimulationProps {
+  onComplete?: (success: boolean) => void;
+}
+
+export default function TripleRidingSimulation({ onComplete }: TripleRidingSimulationProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const eventIdFromUrl = searchParams.get("eventId") || null;
+  
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState<[number, number]>([0, 0]);
   const [disciplinePosition, setDisciplinePosition] = useState<[number, number] | null>(null);
@@ -110,40 +119,55 @@ export default function TripleRidingSimulation() {
         disciplineTop > targetBottom
       );
 
-      // Only accept discipline item, not others
-      if (overlaps && draggedItem === "discipline") {
-        // Success! Show correct video (two people riding safely)
-        setShowCorrectVideo(true);
-        setShowSuccess(true);
-        setIsCompleted(true);
-        
-        // Play the video after a small delay to ensure it's mounted
-        setTimeout(() => {
-          if (videoRef.current) {
-            videoRef.current.play().catch((err) => {
-              console.log("Video autoplay failed, user can click play:", err);
-            });
-          }
-        }, 100);
+      // Check if correct item (discipline) or wrong item
+      if (overlaps) {
+        if (draggedItem === "discipline") {
+          // Success! Show correct video (two people riding safely)
+          setShowCorrectVideo(true);
+          setShowSuccess(true);
+          setIsCompleted(true);
+          
+          // Play the video after a small delay to ensure it's mounted
+          setTimeout(() => {
+            if (videoRef.current) {
+              videoRef.current.play().catch((err) => {
+                console.log("Video autoplay failed, user can click play:", err);
+              });
+            }
+          }, 100);
 
-        // Log completion
-        try {
-          const response = await fetch("/api/sim/complete", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sceneId: "bike_triple_riding_prototype",
-              success: true,
-              attempts: 1,
-              seconds: 0,
-            }),
-          });
-          const payload = await response.json();
-          if (payload?.referenceId) {
-            setReferenceId(payload.referenceId);
+          // Log completion and notify parent
+          try {
+            const response = await fetch("/api/sim/complete", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                sceneId: "bike_triple_riding_prototype",
+                success: true,
+                attempts: 1,
+                seconds: 0,
+              }),
+            });
+            const payload = await response.json();
+            if (payload?.referenceId) {
+              setReferenceId(payload.referenceId);
+            }
+            // Notify parent of successful completion
+            if (onComplete) {
+              onComplete(true);
+            }
+          } catch {
+            // Ignore logging errors, but still notify parent
+            if (onComplete) {
+              onComplete(true);
+            }
           }
-        } catch {
-          // Non-blocking if logging fails
+        } else {
+          // Wrong item dragged - mark as wrong
+          setIsCompleted(true);
+          if (onComplete) {
+            onComplete(false);
+          }
         }
       }
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import DraggableItems from "./DraggableItems";
 
 const BASE_DIMENSIONS = { width: 500, height: 500 };
@@ -12,7 +13,15 @@ const HEAD_HITBOX = {
 };
 const HELMET_SIZE = { width: 100, height: 80 };
 
-export default function HelmetPrototype() {
+interface HelmetPrototypeProps {
+  onComplete?: (success: boolean) => void;
+}
+
+export default function HelmetPrototype({ onComplete }: HelmetPrototypeProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const eventIdFromUrl = searchParams.get("eventId") || null;
+  
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState<[number, number]>([0, 0]);
   const [helmetPosition, setHelmetPosition] = useState<[number, number] | null>(null);
@@ -107,31 +116,46 @@ export default function HelmetPrototype() {
         helmetTop > headBottom
       );
 
-      // Only accept helmet item, not others
-      if (overlaps && draggedItem === "helmet") {
-        // Success! Replace image immediately with updated version
-        setImageSrc("/media/simulation%20media/helmet%20wearing/with%20helmet.png?v=" + Date.now());
-        setShowSuccess(true);
-        setIsCompleted(true);
-        
-        // Log completion
-        try {
-          const response = await fetch("/api/sim/complete", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sceneId: "bike_no_helmet_prototype",
-              success: true,
-              attempts: 1,
-              seconds: 0,
-            }),
-          });
-          const payload = await response.json();
-          if (payload?.referenceId) {
-            setReferenceId(payload.referenceId);
+      // Check if correct item (helmet) or wrong item
+      if (overlaps) {
+        if (draggedItem === "helmet") {
+          // Success! Replace image immediately with updated version
+          setImageSrc("/media/simulation%20media/helmet%20wearing/with%20helmet.png?v=" + Date.now());
+          setShowSuccess(true);
+          setIsCompleted(true);
+          
+          // Log completion and notify parent
+          try {
+            const response = await fetch("/api/sim/complete", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                sceneId: "bike_no_helmet_prototype",
+                success: true,
+                attempts: 1,
+                seconds: 0,
+              }),
+            });
+            const payload = await response.json();
+            if (payload?.referenceId) {
+              setReferenceId(payload.referenceId);
+            }
+            // Notify parent of successful completion
+            if (onComplete) {
+              onComplete(true);
+            }
+          } catch {
+            // Ignore logging errors, but still notify parent
+            if (onComplete) {
+              onComplete(true);
+            }
           }
-        } catch {
-          // Ignore logging errors so the learner experience is not interrupted
+        } else {
+          // Wrong item dragged - mark as wrong
+          setIsCompleted(true);
+          if (onComplete) {
+            onComplete(false);
+          }
         }
       }
 

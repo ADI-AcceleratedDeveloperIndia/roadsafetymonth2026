@@ -1,9 +1,9 @@
 import { Schema, model, models } from "mongoose";
 
 const OrganiserSchema = new Schema({
-  tempOrganiserId: { type: String, unique: true, index: true },
-  finalOrganiserId: { type: String, unique: true, sparse: true, index: true },
-  eventReferenceId: { type: String, unique: true, sparse: true, index: true },
+  tempOrganiserId: { type: String, unique: true, index: true }, // Temporary ID given on registration
+  finalOrganiserId: { type: String, unique: true, sparse: true, index: true }, // Permanent ID given on approval
+  // Note: Events get their own IDs when created, not when organiser is approved
   name: { type: String, required: true },
   organisation: { type: String, required: true },
   mobileNumber: { type: String, required: true, index: true },

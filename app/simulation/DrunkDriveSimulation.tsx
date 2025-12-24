@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import DraggableItems from "./DraggableItems";
 
 const BASE_DIMENSIONS = { width: 500, height: 500 };
@@ -12,7 +13,15 @@ const TARGET_HITBOX = {
 };
 const MENTOR_SIZE = { width: 120, height: 120 };
 
-export default function DrunkDriveSimulation() {
+interface DrunkDriveSimulationProps {
+  onComplete?: (success: boolean) => void;
+}
+
+export default function DrunkDriveSimulation({ onComplete }: DrunkDriveSimulationProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const eventIdFromUrl = searchParams.get("eventId") || null;
+  
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState<[number, number]>([0, 0]);
   const [mentorPosition, setMentorPosition] = useState<[number, number] | null>(null);
@@ -91,37 +100,52 @@ export default function DrunkDriveSimulation() {
 
     const overlaps = !(mentorRight < targetLeft || mentorLeft > targetRight || mentorBottom < targetTop || mentorTop > targetBottom);
 
-    // Only accept non-drunk item, not others
-    if (overlaps && draggedItem === "non-drunk") {
-      setShowSoberVideo(true);
-      setShowSuccess(true);
-      setIsCompleted(true);
+    // Check if correct item (non-drunk) or wrong item
+    if (overlaps) {
+      if (draggedItem === "non-drunk") {
+        setShowSoberVideo(true);
+        setShowSuccess(true);
+        setIsCompleted(true);
 
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.play().catch(() => {
-            /* ignore autoplay failures */
+        setTimeout(() => {
+          if (videoRef.current) {
+            videoRef.current.play().catch(() => {
+              /* ignore autoplay failures */
+            });
+          }
+        }, 120);
+
+        try {
+          const response = await fetch("/api/sim/complete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sceneId: "car_drunk_drive_prototype",
+              success: true,
+              attempts: 1,
+              seconds: 0,
+            }),
           });
+          const payload = await response.json();
+          if (payload?.referenceId) {
+            setReferenceId(payload.referenceId);
+          }
+          // Notify parent of successful completion
+          if (onComplete) {
+            onComplete(true);
+          }
+        } catch {
+          // Ignore logging errors, but still notify parent
+          if (onComplete) {
+            onComplete(true);
+          }
         }
-      }, 120);
-
-      try {
-        const response = await fetch("/api/sim/complete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sceneId: "car_drunk_drive_prototype",
-            success: true,
-            attempts: 1,
-            seconds: 0,
-          }),
-        });
-        const payload = await response.json();
-        if (payload?.referenceId) {
-          setReferenceId(payload.referenceId);
+      } else {
+        // Wrong item dragged - mark as wrong
+        setIsCompleted(true);
+        if (onComplete) {
+          onComplete(false);
         }
-      } catch {
-        // non-blocking logging failure
       }
     }
 

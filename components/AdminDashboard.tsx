@@ -83,6 +83,12 @@ export default function AdminDashboard() {
       const data = await response.json();
       if (response.ok) {
         setPendingOrganisers(data.organisers || []);
+      } else {
+        console.error("Failed to fetch pending organisers:", data.error);
+        // Show error to user
+        if (data.error) {
+          console.error("API Error:", data.error);
+        }
       }
     } catch (error) {
       console.error("Error fetching pending organisers:", error);
@@ -101,14 +107,14 @@ export default function AdminDashboard() {
 
       const data = await response.json();
 
-      if (response.ok) {
-        if (action === "approve") {
-          alert(`Organiser approved!\n\nFinal Organiser ID: ${data.finalOrganiserId}\nEvent Reference ID: ${data.eventReferenceId}`);
-        } else {
-          alert("Organiser rejected");
-        }
-        fetchPendingOrganisers();
-      } else {
+          if (response.ok) {
+            if (action === "approve") {
+              alert(`Organiser approved!\n\nFinal Organiser ID: ${data.finalOrganiserId}\n\nNote: Events will get their own unique Event ID and Reference ID when created.`);
+            } else {
+              alert("Organiser rejected");
+            }
+            fetchPendingOrganisers();
+          } else {
         alert(data.error || `Failed to ${action} organiser`);
       }
     } catch (error) {

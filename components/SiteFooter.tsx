@@ -132,6 +132,14 @@ export default function SiteFooter() {
                 </li>
                 <li>
                   <Link 
+                    href="/organiser-status"
+                    className="text-slate-300 hover:text-yellow-300 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-offset-2 focus:ring-offset-emerald-900 rounded"
+                  >
+                    Check Organiser Status
+                  </Link>
+                </li>
+                <li>
+                  <Link 
                     href="/admin"
                     className="text-slate-300 hover:text-yellow-300 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-offset-2 focus:ring-offset-emerald-900 rounded"
                   >

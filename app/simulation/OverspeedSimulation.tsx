@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import DraggableItems from "./DraggableItems";
 
 const BASE_DIMENSIONS = { width: 500, height: 500 };
@@ -12,7 +13,11 @@ const TARGET_HITBOX = {
 };
 const SPEEDOMETER_SIZE = { width: 120, height: 120 };
 
-export default function OverspeedSimulation() {
+interface OverspeedSimulationProps {
+  onComplete?: (success: boolean) => void;
+}
+
+export default function OverspeedSimulation({ onComplete }: OverspeedSimulationProps) {
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState<[number, number]>([0, 0]);
   const [speedometerPosition, setSpeedometerPosition] = useState<[number, number] | null>(null);
@@ -89,29 +94,44 @@ export default function OverspeedSimulation() {
 
     const overlaps = !(speedometerRight < targetLeft || speedometerLeft > targetRight || speedometerBottom < targetTop || speedometerTop > targetBottom);
 
-    // Only accept speedometer item
-    if (overlaps && draggedItem === "speedometer") {
-      setShowCorrectedSpeed(true);
-      setShowSuccess(true);
-      setIsCompleted(true);
+    // Check if correct item (speedometer) or wrong item
+    if (overlaps) {
+      if (draggedItem === "speedometer") {
+        setShowCorrectedSpeed(true);
+        setShowSuccess(true);
+        setIsCompleted(true);
 
-      try {
-        const response = await fetch("/api/sim/complete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sceneId: "car_overspeed_prototype",
-            success: true,
-            attempts: 1,
-            seconds: 0,
-          }),
-        });
-        const payload = await response.json();
-        if (payload?.referenceId) {
-          setReferenceId(payload.referenceId);
+        try {
+          const response = await fetch("/api/sim/complete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sceneId: "car_overspeed_prototype",
+              success: true,
+              attempts: 1,
+              seconds: 0,
+            }),
+          });
+          const payload = await response.json();
+          if (payload?.referenceId) {
+            setReferenceId(payload.referenceId);
+          }
+          // Notify parent of successful completion
+          if (onComplete) {
+            onComplete(true);
+          }
+        } catch {
+          // Ignore logging errors, but still notify parent
+          if (onComplete) {
+            onComplete(true);
+          }
         }
-      } catch {
-        // non-blocking logging failure
+      } else {
+        // Wrong item dragged - mark as wrong
+        setIsCompleted(true);
+        if (onComplete) {
+          onComplete(false);
+        }
       }
     }
 

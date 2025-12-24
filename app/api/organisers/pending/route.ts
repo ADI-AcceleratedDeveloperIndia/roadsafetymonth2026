@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import connectDB from "@/lib/db";
 import Organiser from "@/models/Organiser";
-import { authOptions } from "@/lib/auth";
 import { rateLimit, getRateLimitIdentifier } from "@/lib/rateLimit";
 import memoryCache from "@/lib/cache";
 
@@ -11,12 +9,7 @@ const CACHE_TTL = 10000; // 10 seconds cache (admin data changes frequently)
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
+    // Note: Admin dashboard is public, so no authentication required
     // Rate limiting: 30 requests per minute per IP
     const identifier = getRateLimitIdentifier(request);
     const rateLimitResult = rateLimit(identifier, 30, 60000);

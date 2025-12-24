@@ -80,16 +80,26 @@ export default function OrganiserRegisterPage() {
                   Your registration has been submitted and is awaiting admin approval.
                 </p>
                 {tempId && (
-                  <div className="bg-white p-4 rounded border border-green-200">
-                    <p className="text-xs text-slate-600 mb-1">Temporary Organiser ID:</p>
-                    <code className="text-base font-mono text-emerald-900 font-semibold">{tempId}</code>
-                    <p className="text-xs text-slate-500 mt-2">
-                      Save this ID. You'll receive your Final Organiser ID and Event Reference ID after admin approval.
+                  <div className="bg-white p-4 rounded border border-green-200 space-y-3">
+                    <div>
+                      <p className="text-xs text-slate-600 mb-1">Temporary Organiser ID:</p>
+                      <code className="text-base font-mono text-emerald-900 font-semibold">{tempId}</code>
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      ⚠️ <strong>Important:</strong> Save this ID. You'll need it to check your approval status and get your Final Organiser ID and Event Reference ID.
+                    </p>
+                    <Link href={`/organiser-status?tempId=${encodeURIComponent(tempId)}`}>
+                      <Button className="w-full rs-btn-primary">
+                        Check Status Now
+                      </Button>
+                    </Link>
+                    <p className="text-xs text-slate-500 text-center">
+                      You can check your status anytime using this Temporary ID
                     </p>
                   </div>
                 )}
                 <p className="text-green-700 font-medium">
-                  You will be notified once your registration is approved.
+                  Your registration is pending admin approval. Check your status using your Temporary Organiser ID.
                 </p>
               </div>
               <Button
@@ -217,8 +227,12 @@ export default function OrganiserRegisterPage() {
             </form>
           )}
 
-          <div className="pt-4 border-t border-emerald-100 text-center">
-            <Link href="/" className="text-sm text-emerald-700 hover:text-emerald-900">
+          <div className="pt-4 border-t border-emerald-100 text-center space-y-2">
+            <Link href="/organiser-status" className="text-sm text-emerald-700 hover:text-emerald-900 font-medium">
+              Check Registration Status →
+            </Link>
+            <p className="text-xs text-slate-500">Already registered? Check your approval status</p>
+            <Link href="/" className="block text-sm text-emerald-700 hover:text-emerald-900 mt-2">
               ← Back to Home
             </Link>
           </div>

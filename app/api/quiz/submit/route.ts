@@ -9,9 +9,10 @@ import enQuiz from "@/locales/en/quiz.json";
 import teQuiz from "@/locales/te/quiz.json";
 
 const submitQuizSchema = z.object({
-  fullName: z.string().min(1),
+  fullName: z.string().optional(), // Optional - will be collected in certificate form
   institution: z.string().optional(),
   answers: z.array(z.number()),
+  eventId: z.string().optional(), // Optional event ID for organiser-led events
 });
 
 const QUIZ_QUESTIONS = [
@@ -156,8 +157,8 @@ export async function POST(request: NextRequest) {
 
       const attempt = new QuizAttempt({
         referenceId,
-        fullName: validated.fullName,
-        institution: validated.institution,
+        fullName: validated.fullName || "User", // Default if not provided (will be collected in certificate form)
+        institution: validated.institution || "",
         score,
         passed,
         certificateType,

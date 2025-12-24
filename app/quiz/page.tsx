@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Trophy, Copy, Sparkles, Target, Award, Volume2, VolumeX } from "lucide-react";
 
 interface Question {
@@ -19,6 +19,8 @@ export default function QuizPage() {
   const { t, i18n } = useTranslation("common");
   const { t: tc } = useTranslation("content");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const eventIdFromUrl = searchParams.get("eventId") || null; // Get event ID from URL if provided by organiser
   
   // Get current language for speech synthesis
   const getCurrentLang = () => {
@@ -44,8 +46,6 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState<number[]>([]);
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
   const [questionResults, setQuestionResults] = useState<Map<number, boolean>>(new Map()); // questionId -> isCorrect
-  const [name, setName] = useState("");
-  const [institution, setInstitution] = useState("");
   const [copiedRefId, setCopiedRefId] = useState(false);
   const [virtualQuizMaster, setVirtualQuizMaster] = useState<boolean>(false);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -610,10 +610,6 @@ export default function QuizPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      alert(tc("pleaseEnterYourName"));
-      return;
-    }
 
     // Check if all questions are answered
     const unansweredCount = questions.length - answeredQuestions.size;
@@ -628,9 +624,10 @@ export default function QuizPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fullName: name,
-          institution,
+          fullName: "User", // Temporary name, will be collected in certificate form
+          institution: "", // Will be collected in certificate form
           answers,
+          eventId: eventIdFromUrl, // Include event ID if provided
         }),
       });
 
@@ -650,10 +647,30 @@ export default function QuizPage() {
         }, 500);
       }
       
-      // Hide celebration after 5 seconds and show results
+      // Auto-redirect to certificate page after 3 seconds (show score first)
       setTimeout(() => {
         setShowCelebration(false);
-      }, 5000);
+        // Redirect to certificate generation with pre-filled data
+        const certificateType = data.certificateType ?? (data.passed ? "QUIZ" : "PAR");
+        const percentage = Math.round((data.score / data.total) * 100);
+        const scoreLabel = `${data.score}/${data.total} • ${percentage}%`;
+        
+        const params = new URLSearchParams({
+          type: certificateType,
+          score: scoreLabel,
+          ref: data.referenceId || "",
+        });
+        
+        // Add event ID if provided (organiser-led event)
+        if (eventIdFromUrl) {
+          params.set("eventId", eventIdFromUrl);
+        } else {
+          // For direct users, use generic event name
+          params.set("event", "Online Quiz Event");
+        }
+        
+        router.push(`/certificates/generate?${params.toString()}`);
+      }, 3000);
     } catch (error) {
       console.error("Error:", error);
       alert(tc("failedToSubmitQuiz"));
@@ -673,18 +690,7 @@ export default function QuizPage() {
     }
   };
 
-  const handleGenerateCertificate = () => {
-    if (!result?.referenceId) return;
-    const certificateType = result.certificateType ?? (result.passed ? "QUIZ" : "PAR");
-    const percentage = Math.round((result.score / result.total) * 100);
-    const scoreLabel = `${result.score}/${result.total} • ${percentage}%`;
-
-    router.push(
-      `/certificates/generate?type=${certificateType}&name=${encodeURIComponent(name)}&institution=${encodeURIComponent(
-        institution || ""
-      )}&score=${encodeURIComponent(scoreLabel)}&ref=${encodeURIComponent(result.referenceId)}`
-    );
-  };
+  // Auto-redirect is handled in handleSubmit, no need for separate function
 
   if (loading) {
     return (
@@ -821,31 +827,6 @@ export default function QuizPage() {
               {getCurrentLang() === "te" ? "టెస్ట్ వాయిస్" : "Test Voice"}
             </Button>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="rs-card p-8">
-        <div className="grid md:grid-cols-2 gap-5">
-          <div className="space-y-3">
-            <Label htmlFor="name" className="text-sm font-semibold text-emerald-900">{t("name")} *</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={tc("enterYourFullName")}
-              className="h-11 rounded-lg border-emerald-200"
-            />
-          </div>
-          <div className="space-y-3">
-            <Label htmlFor="institution" className="text-sm font-semibold text-emerald-900">{t("institution")}</Label>
-            <Input
-              id="institution"
-              value={institution}
-              onChange={(e) => setInstitution(e.target.value)}
-              placeholder={tc("schoolCollegeOrganisation")}
-              className="h-11 rounded-lg border-emerald-200"
-            />
           </div>
         </div>
       </div>
@@ -992,7 +973,7 @@ export default function QuizPage() {
           <Button
             type="submit"
             size="lg"
-            disabled={submitting || !name.trim()}
+            disabled={submitting || answeredCount < questions.length}
             className="rs-btn-primary text-base px-10"
           >
             {submitting ? (
