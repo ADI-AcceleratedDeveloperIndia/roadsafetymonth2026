@@ -30,6 +30,7 @@ yarn-error.log*
 
 # credentials and secrets (IMPORTANT: Never commit these!)
 CREDENTIALS.txt
+VERCEL_SECRETS.txt
 *.credentials
 *.secrets
 .github-token
