@@ -101,7 +101,7 @@ export default function Home() {
     {
       title: t("roadSafety"),
       description: tc("roadSafetyComprehensiveGuides"),
-      href: "/road-safety",
+      href: "/basics",
       icon: <BookOpenCheck className="h-6 w-6" />,
       accent: "bg-yellow-100 text-yellow-800",
     },

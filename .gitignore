@@ -28,7 +28,10 @@ yarn-error.log*
 .env*.local
 .env
 
-# github token (IMPORTANT: Never commit this!)
+# credentials and secrets (IMPORTANT: Never commit these!)
+CREDENTIALS.txt
+*.credentials
+*.secrets
 .github-token
 
 # vercel

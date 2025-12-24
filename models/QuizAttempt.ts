@@ -6,13 +6,18 @@ const QuizAttemptSchema = new Schema({
     type: String,
     enum: ["QUIZ", "PAR"],
     required: true,
+    index: true,
   },
   fullName: String,
   institution: String,
   score: Number,
-  passed: Boolean,
-  createdAt: { type: Date, default: Date.now },
+  passed: { type: Boolean, index: true },
+  createdAt: { type: Date, default: Date.now, index: true },
 });
+
+// Compound indexes for common query patterns
+QuizAttemptSchema.index({ passed: 1, createdAt: -1 });
+QuizAttemptSchema.index({ certificateType: 1, createdAt: -1 });
 
 export default models.QuizAttempt || model("QuizAttempt", QuizAttemptSchema);
 

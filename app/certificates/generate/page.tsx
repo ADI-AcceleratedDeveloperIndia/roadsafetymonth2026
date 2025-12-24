@@ -14,41 +14,8 @@ import { generateReferenceId } from "@/lib/reference";
 import { Award, MapPin, Sparkles, Languages } from "lucide-react";
 import { getRegionalAuthority } from "@/lib/regional";
 
-const DISTRICTS = [
-  "Adilabad",
-  "Bhadradri Kothagudem",
-  "Hyderabad",
-  "Jagtial",
-  "Jangaon",
-  "Jayashankar Bhupalpally",
-  "Jogulamba Gadwal",
-  "Kamareddy",
-  "Karimnagar",
-  "Khammam",
-  "Kumuram Bheem Asifabad",
-  "Mahabubabad",
-  "Mahabubnagar",
-  "Mancherial",
-  "Medak",
-  "Medchal–Malkajgiri",
-  "Mulugu",
-  "Nagarkurnool",
-  "Nalgonda",
-  "Narayanpet",
-  "Nirmal",
-  "Nizamabad",
-  "Peddapalli",
-  "Rajanna Sircilla",
-  "Ranga Reddy",
-  "Sangareddy",
-  "Siddipet",
-  "Suryapet",
-  "Vikarabad",
-  "Wanaparthy",
-  "Warangal",
-  "Hanumakonda",
-  "Yadadri Bhuvanagiri",
-];
+// Only Karimnagar district is supported
+const DISTRICT = "Karimnagar";
 
 const getCertificateOptions = (tc: (key: string) => string) => [
   { value: "ORG", label: `ORG – ${tc("certificateOrgTitle")}` },
@@ -142,7 +109,7 @@ function CertificateGenerateContent() {
     defaultValues: {
       certificateType: defaultType as GenerateForm["certificateType"],
       fullName: "",
-      district: "",
+      district: DISTRICT, // Hardcoded to Karimnagar
       issueDate: new Date().toISOString().slice(0, 10),
       email: "",
       score: "",
@@ -344,21 +311,14 @@ function CertificateGenerateContent() {
 
             <div className="space-y-2">
               <Label htmlFor="district" className="text-sm font-semibold text-emerald-900">{tc("district") || "District"} *</Label>
-              <select
+              <Input
                 id="district"
-                value={districtValue || ""}
-                onChange={(event) => setValue("district", event.target.value)}
-                className="h-11 rounded-lg border border-emerald-200 px-3 text-sm focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="" disabled>
-                  {tc("selectDistrict") || "Select district"}
-                </option>
-                {DISTRICTS.map((district) => (
-                  <option key={district} value={district}>
-                    {district}
-                  </option>
-                ))}
-              </select>
+                value={DISTRICT}
+                disabled
+                className="h-11 rounded-lg border border-emerald-200 bg-gray-100"
+                {...register("district")}
+              />
+              <p className="text-xs text-slate-500">Currently, certificates are limited to Karimnagar district only.</p>
               {errors.district && <p className="text-xs text-red-600">{errors.district.message}</p>}
             </div>
           </div>

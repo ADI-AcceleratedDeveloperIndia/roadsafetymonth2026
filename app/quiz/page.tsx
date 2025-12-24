@@ -764,7 +764,7 @@ export default function QuizPage() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <span className="rs-chip">{tc("gamifiedQuizArena")}</span>
-            <h1 className="text-3xl font-semibold text-emerald-900 mt-2">{t("quiz")}</h1>
+            <h1 className="text-3xl font-semibold text-emerald-900 mt-2">{t("quiz")} <span className="text-2xl text-emerald-700">(Inter)</span></h1>
             <p className="text-slate-600 max-w-xl">
               {tc("quizDescription")}
             </p>

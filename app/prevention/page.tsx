@@ -155,7 +155,7 @@ export default function PreventionPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl">
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-green-800 mb-3">{tc("preventionGreaterThanCure") || "Prevention > Cure"}</h1>
+        <h1 className="text-4xl font-bold text-green-800 mb-3">Prevention <span className="text-3xl text-green-700">(Graduation)</span></h1>
         <p className="text-gray-600 max-w-3xl mx-auto">
           {tc("safetyIsChainOfDecisions") || "Safety is a chain of small decisions. Confirm each prevention step with \"Yes\" to reveal why it matters. Finish every section to receive a reference ID acknowledging your commitment."}
         </p>

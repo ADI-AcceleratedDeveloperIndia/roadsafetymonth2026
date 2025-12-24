@@ -1,0 +1,1 @@
+mongodb username "accelerateddeveloperindia_db_user" , password 3fJcgnsFdhJgPoRm , connect string mongodb+srv://accelerateddeveloperindia_db_user:3fJcgnsFdhJgPoRm@roadsafetymonth2026.osrjpmd.mongodb.net/?appName=roadsafetymonth2026. 

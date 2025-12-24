@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Award, FileText, Users, Download, Activity, MapPin, Plus, BookOpen, Copy, Check } from "lucide-react";
+import { Award, FileText, Users, Download, Activity, MapPin, Plus, BookOpen, Copy, Check, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,31 +10,21 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
-    totalCertificates: 1247,
-    totalAppreciations: 89,
-    totalEvents: 15,
-    totalQuizPasses: 892,
-    totalQuizAttempts: 1156,
-    passRate: 77,
-    totalSimulationPlays: 245,
-    districts: [
-      { key: "karimnagar", count: 342 },
-      { key: "rajannasircilla", count: 198 },
-      { key: "hyderabad", count: 156 },
-      { key: "warangal", count: 134 },
-      { key: "nizamabad", count: 98 },
-    ] as { key: string; count: number }[],
+    totalCertificates: 0,
+    totalAppreciations: 0,
+    totalEvents: 0,
+    totalQuizPasses: 0,
+    totalQuizAttempts: 0,
+    passRate: 0,
+    totalSimulationPlays: 0,
+    districts: [] as { key: string; count: number }[],
   });
   const [simStats, setSimStats] = useState({
-    totalSessions: 245,
-    totalCompletions: 189,
-    successRate: 77,
-    categoryStats: [
-      { category: "helmet", total: 98, successful: 87 },
-      { category: "triple riding", total: 76, successful: 58 },
-      { category: "drunk driving", total: 71, successful: 44 },
-    ] as { category: string; total: number; successful: number }[],
-    avgTimeSeconds: 45,
+    totalSessions: 0,
+    totalCompletions: 0,
+    successRate: 0,
+    categoryStats: [] as { category: string; total: number; successful: number }[],
+    avgTimeSeconds: 0,
   });
   const [loading, setLoading] = useState(true);
   const [appreciations, setAppreciations] = useState<{ fullName: string; appreciationText: string; createdAt: string }[]>([]);
@@ -42,71 +32,44 @@ export default function AdminDashboard() {
   const [organiserForm, setOrganiserForm] = useState({
     name: "",
     organisation: "",
-    eventDetails: "",
-    place: "",
-    date: "",
+    mobileNumber: "",
+    eventLocation: "Karimnagar",
+    proposedEventDate: "",
+    eventType: "School" as "School" | "College" | "Public Awareness",
   });
-  const [selectedOrganiser, setSelectedOrganiser] = useState<string | null>(null);
   const [copiedRefId, setCopiedRefId] = useState<string | null>(null);
-
-  // Dummy organiser data
-  const dummyOrganiser = {
-    id: "org-001",
-    name: "Sri Ramesh Kumar",
-    organisation: "Karimnagar Government High School",
-    eventDetails: "Road Safety Awareness Rally & Workshop",
-    place: "Karimnagar",
-    date: "2026-01-15",
-    referenceIds: [
-      "RSM-ORG-20260115-A1B2C3D4",
-      "RSM-ORG-20260115-E5F6G7H8",
-      "RSM-ORG-20260115-I9J0K1L2",
-      "RSM-ORG-20260115-M3N4O5P6",
-      "RSM-ORG-20260115-Q7R8S9T0",
-    ],
-  };
+  const [pendingOrganisers, setPendingOrganisers] = useState<any[]>([]);
+  const [loadingPending, setLoadingPending] = useState(false);
+  const [registerLoading, setRegisterLoading] = useState(false);
+  const [registerSuccess, setRegisterSuccess] = useState(false);
 
   useEffect(() => {
-    const defaultStats = {
-      totalCertificates: 1247,
-      totalAppreciations: 89,
-      totalEvents: 15,
-      totalQuizPasses: 892,
-      totalQuizAttempts: 1156,
-      passRate: 77,
-      totalSimulationPlays: 245,
-      districts: [
-        { key: "karimnagar", count: 342 },
-        { key: "rajannasircilla", count: 198 },
-        { key: "hyderabad", count: 156 },
-        { key: "warangal", count: 134 },
-        { key: "nizamabad", count: 98 },
-      ],
-    };
-
-    const defaultSimStats = {
-      totalSessions: 245,
-      totalCompletions: 189,
-      successRate: 77,
-      categoryStats: [
-        { category: "helmet", total: 98, successful: 87 },
-        { category: "triple riding", total: 76, successful: 58 },
-        { category: "drunk driving", total: 71, successful: 44 },
-      ],
-      avgTimeSeconds: 45,
-    };
-
     Promise.all([
-      fetch("/api/stats/overview").then((res) => res.json()).catch(() => defaultStats),
-      fetch("/api/sim/stats").then((res) => res.json()).catch(() => defaultSimStats),
+      fetch("/api/stats/overview").then((res) => res.ok ? res.json() : null).catch(() => null),
+      fetch("/api/sim/stats").then((res) => res.ok ? res.json() : null).catch(() => null),
     ])
       .then(([overviewData, simData]) => {
-        // Only update if we got valid data with required properties
+        // Only update if we got valid data from API
         if (overviewData && typeof overviewData === 'object') {
-          setStats(prevStats => ({ ...prevStats, ...overviewData }));
+          setStats({
+            totalCertificates: overviewData.totalCertificates || 0,
+            totalAppreciations: overviewData.totalAppreciations || 0,
+            totalEvents: overviewData.totalEvents || 0,
+            totalQuizPasses: overviewData.totalQuizPasses || 0,
+            totalQuizAttempts: overviewData.totalQuizAttempts || 0,
+            passRate: overviewData.passRate || 0,
+            totalSimulationPlays: overviewData.totalSimulationPlays || 0,
+            districts: overviewData.districts || [],
+          });
         }
         if (simData && simData.categoryStats && Array.isArray(simData.categoryStats)) {
-          setSimStats(prevSimStats => ({ ...prevSimStats, ...simData }));
+          setSimStats({
+            totalSessions: simData.totalSessions || 0,
+            totalCompletions: simData.totalCompletions || 0,
+            successRate: simData.successRate || 0,
+            categoryStats: simData.categoryStats || [],
+            avgTimeSeconds: simData.avgTimeSeconds || 0,
+          });
         }
         setLoading(false);
       })
@@ -128,18 +91,86 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleCreateOrganiser = (e: React.FormEvent) => {
+  const handleRegisterOrganiser = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Dummy submission - just show success message
-    alert(`Organiser Created!\n\nName: ${organiserForm.name}\nOrganisation: ${organiserForm.organisation}\nEvent: ${organiserForm.eventDetails}\nPlace: ${organiserForm.place}\nDate: ${organiserForm.date}`);
-    setIsCreateOrganiserOpen(false);
-    setOrganiserForm({
-      name: "",
-      organisation: "",
-      eventDetails: "",
-      place: "",
-      date: "",
-    });
+    setRegisterLoading(true);
+    setRegisterSuccess(false);
+
+    try {
+      const response = await fetch("/api/organisers/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(organiserForm),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setRegisterSuccess(true);
+        setOrganiserForm({
+          name: "",
+          organisation: "",
+          mobileNumber: "",
+          eventLocation: "Karimnagar",
+          proposedEventDate: "",
+          eventType: "School",
+        });
+        // Refresh pending list
+        fetchPendingOrganisers();
+        setTimeout(() => {
+          setIsCreateOrganiserOpen(false);
+          setRegisterSuccess(false);
+        }, 2000);
+      } else {
+        alert(data.error || "Failed to register organiser");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      alert("Failed to register organiser");
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
+
+  const fetchPendingOrganisers = async () => {
+    setLoadingPending(true);
+    try {
+      const response = await fetch("/api/organisers/pending");
+      const data = await response.json();
+      if (response.ok) {
+        setPendingOrganisers(data.organisers || []);
+      }
+    } catch (error) {
+      console.error("Error fetching pending organisers:", error);
+    } finally {
+      setLoadingPending(false);
+    }
+  };
+
+  const handleApproveReject = async (organiserId: string, action: "approve" | "reject") => {
+    try {
+      const response = await fetch("/api/organisers/approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ organiserId, action }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (action === "approve") {
+          alert(`Organiser approved!\n\nFinal Organiser ID: ${data.finalOrganiserId}\nEvent Reference ID: ${data.eventReferenceId}`);
+        } else {
+          alert("Organiser rejected");
+        }
+        fetchPendingOrganisers();
+      } else {
+        alert(data.error || `Failed to ${action} organiser`);
+      }
+    } catch (error) {
+      console.error("Approval error:", error);
+      alert(`Failed to ${action} organiser`);
+    }
   };
 
   const handleCopyRefId = (refId: string) => {
@@ -180,6 +211,7 @@ export default function AdminDashboard() {
       .then((res) => (res.ok ? res.json() : { items: [] }))
       .then((data) => setAppreciations(data.items || []))
       .catch(() => setAppreciations([]));
+    fetchPendingOrganisers();
   }, []);
 
   const statCards = [
@@ -221,19 +253,19 @@ export default function AdminDashboard() {
             <Dialog open={isCreateOrganiserOpen} onOpenChange={setIsCreateOrganiserOpen}>
               <DialogTrigger asChild>
                 <Button className="rs-btn-primary gap-2">
-                  <Plus className="h-4 w-4" /> Create Organiser
+                  <Plus className="h-4 w-4" /> Register Organiser
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Create Event Organiser</DialogTitle>
+                  <DialogTitle>Organiser Self-Registration</DialogTitle>
                   <DialogDescription>
-                    Add a new organiser with event details for road safety campaigns.
+                    Register a new organiser. Status will be "Pending Approval" until admin approves.
                   </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleCreateOrganiser} className="space-y-4">
+                <form onSubmit={handleRegisterOrganiser} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Organiser Name</Label>
+                    <Label htmlFor="name">Organiser Name *</Label>
                     <Input
                       id="name"
                       value={organiserForm.name}
@@ -243,51 +275,79 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="organisation">Organisation</Label>
+                    <Label htmlFor="organisation">Organisation / School / College / NGO *</Label>
                     <Input
                       id="organisation"
                       value={organiserForm.organisation}
                       onChange={(e) => setOrganiserForm({ ...organiserForm, organisation: e.target.value })}
-                      placeholder="e.g., School, College, NGO"
+                      placeholder="e.g., Karimnagar Government High School"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="eventDetails">Event Details</Label>
-                    <Textarea
-                      id="eventDetails"
-                      value={organiserForm.eventDetails}
-                      onChange={(e) => setOrganiserForm({ ...organiserForm, eventDetails: e.target.value })}
-                      placeholder="Describe the event (e.g., Road Safety Rally, First Aid Training)"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="place">Place/District</Label>
+                    <Label htmlFor="mobileNumber">Mobile Number *</Label>
                     <Input
-                      id="place"
-                      value={organiserForm.place}
-                      onChange={(e) => setOrganiserForm({ ...organiserForm, place: e.target.value })}
-                      placeholder="e.g., Karimnagar, Hyderabad"
+                      id="mobileNumber"
+                      type="tel"
+                      value={organiserForm.mobileNumber}
+                      onChange={(e) => setOrganiserForm({ ...organiserForm, mobileNumber: e.target.value })}
+                      placeholder="10-digit mobile number"
                       required
+                      minLength={10}
+                      maxLength={10}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="date">Event Date</Label>
+                    <Label htmlFor="eventLocation">Event Location *</Label>
                     <Input
-                      id="date"
+                      id="eventLocation"
+                      value={organiserForm.eventLocation}
+                      disabled
+                      className="bg-slate-100"
+                    />
+                    <p className="text-xs text-slate-500">Currently limited to Karimnagar district only</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="proposedEventDate">Proposed Event Date *</Label>
+                    <Input
+                      id="proposedEventDate"
                       type="date"
-                      value={organiserForm.date}
-                      onChange={(e) => setOrganiserForm({ ...organiserForm, date: e.target.value })}
+                      value={organiserForm.proposedEventDate}
+                      onChange={(e) => setOrganiserForm({ ...organiserForm, proposedEventDate: e.target.value })}
                       required
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="eventType">Event Type *</Label>
+                    <select
+                      id="eventType"
+                      value={organiserForm.eventType}
+                      onChange={(e) => setOrganiserForm({ ...organiserForm, eventType: e.target.value as any })}
+                      className="w-full h-11 rounded-lg border border-emerald-200 px-3"
+                      required
+                    >
+                      <option value="School">School</option>
+                      <option value="College">College</option>
+                      <option value="Public Awareness">Public Awareness</option>
+                    </select>
+                  </div>
+                  {registerSuccess && (
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800">
+                      Registration submitted! Awaiting admin approval.
+                    </div>
+                  )}
                   <div className="flex gap-2 pt-4">
                     <Button type="button" variant="outline" onClick={() => setIsCreateOrganiserOpen(false)} className="flex-1">
                       Cancel
                     </Button>
-                    <Button type="submit" className="flex-1 rs-btn-primary">
-                      Create
+                    <Button type="submit" className="flex-1 rs-btn-primary" disabled={registerLoading}>
+                      {registerLoading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" /> Submitting...
+                        </>
+                      ) : (
+                        "Register"
+                      )}
                     </Button>
                   </div>
                 </form>
@@ -419,44 +479,76 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* Pending Organisers Section */}
       <div className="rs-card p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-emerald-900">Event Organisers</h2>
-            <p className="text-sm text-slate-600">Manage organisers and their reference IDs</p>
+            <h2 className="text-lg font-semibold text-emerald-900">Pending Organiser Approvals</h2>
+            <p className="text-sm text-slate-600">Review and approve/reject organiser registrations</p>
           </div>
+          <Button onClick={fetchPendingOrganisers} variant="outline" size="sm" disabled={loadingPending}>
+            {loadingPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Refresh"}
+          </Button>
         </div>
-        <div className="space-y-3">
-          <div
-            className="rounded-xl border border-emerald-100 bg-white/90 p-4 hover:border-emerald-300 cursor-pointer transition-colors"
-            onClick={() => setSelectedOrganiser(dummyOrganiser.id)}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="font-semibold text-emerald-900 text-lg">{dummyOrganiser.name}</div>
-                <div className="text-sm text-slate-600 mt-1">{dummyOrganiser.organisation}</div>
-                <div className="text-xs text-slate-500 mt-2">
-                  <span className="inline-block mr-4">
-                    <MapPin className="h-3 w-3 inline mr-1" />
-                    {dummyOrganiser.place}
-                  </span>
-                  <span className="inline-block">
-                    <Activity className="h-3 w-3 inline mr-1" />
-                    {new Date(dummyOrganiser.date).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="text-xs text-emerald-700 mt-2 font-medium">
-                  {dummyOrganiser.referenceIds.length} Reference IDs
+        {loadingPending ? (
+          <div className="text-center py-8 text-slate-500">Loading...</div>
+        ) : pendingOrganisers.length === 0 ? (
+          <div className="text-center py-8 text-slate-500">No pending organisers</div>
+        ) : (
+          <div className="space-y-3">
+            {pendingOrganisers.map((org: any) => (
+              <div key={org._id} className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="font-semibold text-emerald-900 text-lg">{org.name}</div>
+                    <div className="text-sm text-slate-600 mt-1">{org.organisation}</div>
+                    <div className="text-xs text-slate-500 mt-2 space-y-1">
+                      <div>
+                        <span className="font-medium">Mobile:</span> {org.mobileNumber}
+                      </div>
+                      <div>
+                        <span className="font-medium">Location:</span> {org.eventLocation}
+                      </div>
+                      <div>
+                        <span className="font-medium">Event Type:</span> {org.eventType}
+                      </div>
+                      <div>
+                        <span className="font-medium">Proposed Date:</span>{" "}
+                        {new Date(org.proposedEventDate).toLocaleDateString("en-IN", {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </div>
+                      <div className="mt-2">
+                        <span className="inline-block px-2 py-1 bg-amber-100 text-amber-800 rounded text-xs font-medium">
+                          Temp ID: {org.tempOrganiserId}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleApproveReject(org._id, "approve")}
+                      className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                      size="sm"
+                    >
+                      <CheckCircle2 className="h-4 w-4" /> Approve
+                    </Button>
+                    <Button
+                      onClick={() => handleApproveReject(org._id, "reject")}
+                      variant="destructive"
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <XCircle className="h-4 w-4" /> Reject
+                    </Button>
+                  </div>
                 </div>
               </div>
-              <div className="ml-4">
-                <Button variant="outline" size="sm" className="gap-2">
-                  View Details
-                </Button>
-              </div>
-            </div>
+            ))}
           </div>
-        </div>
+        )}
       </div>
 
       <div className="rs-card p-6 space-y-4">
@@ -472,103 +564,6 @@ export default function AdminDashboard() {
           {appreciations.length === 0 && <div className="text-sm text-slate-600">No appreciations yet.</div>}
         </div>
       </div>
-
-      {/* Organiser Details Dialog */}
-      <Dialog open={selectedOrganiser === dummyOrganiser.id} onOpenChange={(open) => !open && setSelectedOrganiser(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl">Organiser Details</DialogTitle>
-            <DialogDescription>
-              View reference IDs and download study material for this organiser
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-6 mt-4">
-            <div className="space-y-2">
-              <h3 className="font-semibold text-emerald-900">Organiser Information</h3>
-              <div className="bg-emerald-50 rounded-lg p-4 space-y-2">
-                <div>
-                  <span className="text-sm text-slate-600">Name:</span>
-                  <span className="ml-2 font-medium text-emerald-900">{dummyOrganiser.name}</span>
-                </div>
-                <div>
-                  <span className="text-sm text-slate-600">Organisation:</span>
-                  <span className="ml-2 font-medium text-emerald-900">{dummyOrganiser.organisation}</span>
-                </div>
-                <div>
-                  <span className="text-sm text-slate-600">Event:</span>
-                  <span className="ml-2 font-medium text-emerald-900">{dummyOrganiser.eventDetails}</span>
-                </div>
-                <div>
-                  <span className="text-sm text-slate-600">Location:</span>
-                  <span className="ml-2 font-medium text-emerald-900">{dummyOrganiser.place}</span>
-                </div>
-                <div>
-                  <span className="text-sm text-slate-600">Date:</span>
-                  <span className="ml-2 font-medium text-emerald-900">
-                    {new Date(dummyOrganiser.date).toLocaleDateString("en-IN", {
-                      day: "2-digit",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-emerald-900">Reference IDs</h3>
-                <span className="text-xs text-slate-500">{dummyOrganiser.referenceIds.length} IDs</span>
-              </div>
-              <div className="space-y-2">
-                {dummyOrganiser.referenceIds.map((refId, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between bg-slate-50 rounded-lg p-3 border border-slate-200"
-                  >
-                    <code className="text-sm font-mono text-emerald-900 flex-1">{refId}</code>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleCopyRefId(refId)}
-                      className="ml-2 h-8 w-8 p-0"
-                    >
-                      {copiedRefId === refId ? (
-                        <Check className="h-4 w-4 text-emerald-600" />
-                      ) : (
-                        <Copy className="h-4 w-4 text-slate-600" />
-                      )}
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-3 pt-4 border-t border-emerald-100">
-              <h3 className="font-semibold text-emerald-900">Study Material</h3>
-              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <div className="flex items-start gap-3">
-                  <BookOpen className="h-5 w-5 text-blue-700 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-blue-900">Road Safety Study Material</p>
-                    <p className="text-xs text-blue-700 mt-1">
-                      Comprehensive guide covering road safety rules, regulations, and best practices for organisers.
-                    </p>
-                    <Button
-                      onClick={handleDownloadStudyMaterial}
-                      className="mt-3 bg-blue-600 hover:bg-blue-700 text-white gap-2"
-                      size="sm"
-                    >
-                      <Download className="h-4 w-4" />
-                      Download PDF
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

@@ -23,11 +23,12 @@ export default function SiteFooter() {
   };
 
   const quickLinks = [
-    { href: "/road-safety", label: t("roadSafety") },
+    { href: "/basics", label: "Basics (For All)" },
+    { href: "/guides", label: "Guides (Undergrad)" },
+    { href: "/prevention", label: "Prevention > Cure (Graduation)" },
     { href: "/quiz", label: t("quiz") },
     { href: "/simulation", label: t("simulation") },
     { href: "/certificates", label: t("certificates") },
-    { href: "/certificates/regional", label: t("regionalEvent") },
     { href: "/events", label: t("events") },
   ];
 

@@ -3,6 +3,8 @@ import { z } from "zod";
 import connectDB from "@/lib/db";
 import QuizAttempt from "@/models/QuizAttempt";
 import { generateReferenceId } from "@/lib/reference";
+import { rateLimit, getRateLimitIdentifier } from "@/lib/rateLimit";
+import memoryCache from "@/lib/cache";
 import enQuiz from "@/locales/en/quiz.json";
 import teQuiz from "@/locales/te/quiz.json";
 
@@ -109,8 +111,32 @@ const MERIT_CUTOFF = Math.ceil(QUIZ_QUESTIONS.length * 0.6);
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting: 10 quiz submissions per minute per IP
+    const identifier = getRateLimitIdentifier(request);
+    const rateLimitResult = rateLimit(identifier, 10, 60000);
+    
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { error: "Too many quiz submissions. Please wait before trying again." },
+        { 
+          status: 429,
+          headers: {
+            "Retry-After": Math.ceil((rateLimitResult.resetAt - Date.now()) / 1000).toString(),
+          }
+        }
+      );
+    }
+
     const body = await request.json();
     const validated = submitQuizSchema.parse(body);
+
+    // Validate answers array length
+    if (validated.answers.length !== QUIZ_QUESTIONS.length) {
+      return NextResponse.json(
+        { error: "Invalid number of answers" },
+        { status: 400 }
+      );
+    }
 
     let score = 0;
     for (let i = 0; i < QUIZ_QUESTIONS.length && i < validated.answers.length; i++) {
@@ -124,6 +150,7 @@ export async function POST(request: NextRequest) {
 
     const referenceId = generateReferenceId(certificateType);
     let attemptId: string | null = null;
+    
     try {
       await connectDB();
 
@@ -138,8 +165,13 @@ export async function POST(request: NextRequest) {
 
       await attempt.save();
       attemptId = attempt._id.toString();
+      
+      // Invalidate stats cache since we have new data
+      memoryCache.delete("stats:overview");
     } catch (dbError) {
-      console.warn("Quiz attempt could not be stored. Continuing without persistence.", dbError);
+      console.error("Quiz attempt storage error:", dbError);
+      // Continue without persistence - don't fail the request
+      // In high-traffic scenarios, we want to be resilient
     }
 
     return NextResponse.json({
@@ -151,6 +183,10 @@ export async function POST(request: NextRequest) {
       referenceId,
       certificateType,
       meritCutoff: MERIT_CUTOFF,
+    }, {
+      headers: {
+        "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+      }
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -162,19 +198,59 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  // Get language from query parameter or header
-  const lang = request.nextUrl.searchParams.get("lang") || "en";
-  const quizData = lang === "te" ? teQuiz : enQuiz;
-  
-  // Map translated questions to the format expected by frontend
-  const translatedQuestions = quizData.questions.map((q, idx) => ({
-    id: q.id,
-    question: q.question,
-    options: q.options,
-    correct: QUIZ_QUESTIONS[idx].correct, // Keep original correct answer index
-  }));
-  
-  return NextResponse.json({ questions: translatedQuestions });
+  try {
+    // Rate limiting: 50 requests per minute per IP
+    const identifier = getRateLimitIdentifier(request);
+    const rateLimitResult = rateLimit(identifier, 50, 60000);
+    
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
+      );
+    }
+
+    // Get language from query parameter or header
+    const lang = request.nextUrl.searchParams.get("lang") || "en";
+    const cacheKey = `quiz:questions:${lang}`;
+    
+    // Check cache (quiz questions don't change often)
+    const cached = memoryCache.get(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached, {
+        headers: {
+          "X-Cache": "HIT",
+          "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+        }
+      });
+    }
+
+    const quizData = lang === "te" ? teQuiz : enQuiz;
+    
+    // Map translated questions to the format expected by frontend
+    const translatedQuestions = quizData.questions.map((q, idx) => ({
+      id: q.id,
+      question: q.question,
+      options: q.options,
+      correct: QUIZ_QUESTIONS[idx].correct, // Keep original correct answer index
+    }));
+    
+    const result = { questions: translatedQuestions };
+    
+    // Cache for 1 hour (questions rarely change)
+    memoryCache.set(cacheKey, result, 3600000);
+    
+    return NextResponse.json(result, {
+      headers: {
+        "X-Cache": "MISS",
+        "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=7200",
+      }
+    });
+  } catch (error) {
+    console.error("Quiz GET error:", error);
+    return NextResponse.json({ error: "Failed to fetch questions" }, { status: 500 });
+  }
 }
 
 

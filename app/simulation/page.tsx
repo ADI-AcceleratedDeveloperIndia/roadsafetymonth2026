@@ -20,7 +20,7 @@ export default function SimulationPage() {
           <span className="rs-chip flex items-center gap-2">
             <BrainCircuit className="h-4 w-4" /> {tc("simulationLab")}
           </span>
-          <h1 className="text-3xl font-semibold text-emerald-900">{tc("spotTheViolationFixIt") || "Spot the Violation → Fix It!"}</h1>
+          <h1 className="text-3xl font-semibold text-emerald-900">Simulation <span className="text-2xl text-emerald-700">(School)</span></h1>
           <p className="text-slate-600 max-w-2xl">
             {tc("dragAndDropLearning") || "Drag-and-drop micro learning challenges that help you identify and correct common road safety violations. Earn completion reference IDs for every simulation you master."}
           </p>

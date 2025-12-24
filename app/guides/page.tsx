@@ -1,24 +1,25 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { BookOpenCheck } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { generateReferenceId } from "@/lib/reference";
 
-type GuideSection = {
+type Section = {
   id: string;
   title: string;
   description: string;
   steps: { prompt: string; reinforcement: string }[];
 };
 
-const GUIDE_SECTIONS: GuideSection[] = [
+const GUIDE_SECTIONS: Section[] = [
   {
     id: "two-wheeler",
     title: "Two-Wheeler Readiness",
-    description: "Small routines before you ride make the biggest difference on Telangana’s busy roads.",
+    description: "Small routines before you ride make the biggest difference on Telangana's busy roads.",
     steps: [
       {
         prompt: "Do you inspect tyre pressure, chain slack, and brake feel before every long ride?",
@@ -125,36 +126,34 @@ const GUIDE_SECTIONS: GuideSection[] = [
   },
 ];
 
-type GuideProgress = Record<string, boolean[]>;
+type Progress = Record<string, boolean[]>;
 
 export default function GuidesPage() {
   const { t } = useTranslation("common");
   const { t: tc } = useTranslation("content");
   
-  const [progress, setProgress] = useState<GuideProgress>(() =>
+  const [guideProgress, setGuideProgress] = useState<Progress>(() =>
     GUIDE_SECTIONS.reduce((acc, section) => {
       acc[section.id] = section.steps.map(() => false);
       return acc;
-    }, {} as GuideProgress)
+    }, {} as Progress)
   );
-  const [referenceId, setReferenceId] = useState<string | null>(null);
+  const [guideReferenceId, setGuideReferenceId] = useState<string | null>(null);
 
-  const totalSteps = useMemo(
+  const totalGuideSteps = useMemo(
     () => GUIDE_SECTIONS.reduce((total, section) => total + section.steps.length, 0),
     []
   );
 
-  const completedSteps = useMemo(
-    () => Object.values(progress).reduce((total, sectionSteps) => total + sectionSteps.filter(Boolean).length, 0),
-    [progress]
+  const completedGuideSteps = useMemo(
+    () => Object.values(guideProgress).reduce((total, steps) => total + steps.filter(Boolean).length, 0),
+    [guideProgress]
   );
 
-  const handleYes = (sectionId: string, stepIndex: number) => {
-    setProgress((prev) => {
+  const handleGuideYes = (sectionId: string, stepIndex: number) => {
+    setGuideProgress((prev) => {
       const sectionProgress = prev[sectionId];
-      if (!sectionProgress || sectionProgress[stepIndex]) {
-        return prev;
-      }
+      if (!sectionProgress || sectionProgress[stepIndex]) return prev;
 
       const updatedSection = sectionProgress.map((value, idx) => (idx === stepIndex ? true : value));
       const updated = { ...prev, [sectionId]: updatedSection };
@@ -164,8 +163,8 @@ export default function GuidesPage() {
         0
       );
 
-      if (updatedCompleted === totalSteps && !referenceId) {
-        setReferenceId(generateReferenceId("GUIDE"));
+      if (updatedCompleted === totalGuideSteps && !guideReferenceId) {
+        setGuideReferenceId(generateReferenceId("GUIDE"));
       }
 
       return updated;
@@ -173,28 +172,31 @@ export default function GuidesPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-5xl">
-      <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-green-800 mb-3">{tc("safetyGuides") || "Safety Guides"}</h1>
-        <p className="text-gray-600 max-w-3xl mx-auto">
+    <div className="rs-container py-12 space-y-8">
+      <div className="space-y-3 text-center md:text-left">
+        <span className="rs-chip flex items-center gap-2 justify-center md:justify-start">
+          <BookOpenCheck className="h-4 w-4" /> {tc("safetyGuides") || "Safety Guides"}
+        </span>
+        <h1 className="text-3xl md:text-4xl font-semibold text-emerald-900">{tc("roadSafetyGuidesForEveryone") || "Road Safety Guides for Everyone"} <span className="text-2xl text-emerald-700">(Undergrad)</span></h1>
+        <p className="text-slate-600 max-w-3xl">
           {tc("tapYesToConfirmHabit") || "Tap \"Yes\" to confirm each habit. Only after you respond will the reinforcement appear — helping you actively remember the point. A reference ID unlocks once you acknowledge every habit across all sections."}
         </p>
       </div>
 
-      <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
-        <p className="text-sm font-medium text-gray-700">
-          {tc("progress") || "Progress"}: <span className="text-green-700">{completedSteps} / {totalSteps}</span>
+      <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
+        <p className="text-sm font-medium text-slate-700">
+          {tc("progress") || "Progress"}: <span className="text-emerald-700">{completedGuideSteps} / {totalGuideSteps}</span>
         </p>
-        {!referenceId && (
-          <p className="text-xs text-gray-500">
+        {!guideReferenceId && (
+          <p className="text-xs text-slate-500">
             {tc("keepGoingCompletionId") || "Keep going! The completion ID appears automatically after all prompts are acknowledged."}
           </p>
         )}
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-6">
         {GUIDE_SECTIONS.map((section) => {
-          const sectionProgress = progress[section.id] || [];
+          const sectionProgress = guideProgress[section.id] || [];
           const sectionCompleted = sectionProgress.every(Boolean);
           return (
             <Card key={section.id}>
@@ -218,7 +220,7 @@ export default function GuidesPage() {
                         <Button
                           type="button"
                           size="sm"
-                          onClick={() => handleYes(section.id, index)}
+                          onClick={() => handleGuideYes(section.id, index)}
                           disabled={acknowledged}
                         >
                           {acknowledged ? (tc("noted") || "Noted") : (tc("yes") || "Yes")}
@@ -238,8 +240,8 @@ export default function GuidesPage() {
         })}
       </div>
 
-      {referenceId && (
-        <Card className="mt-10 bg-green-50 border-green-200">
+      {guideReferenceId && (
+        <Card className="bg-green-50 border-green-200">
           <CardContent className="py-6 text-center space-y-2">
             <p className="text-lg font-semibold text-green-800">
               {tc("fantasticRevisitedHabits") || "Fantastic! You consciously revisited every habit in this guide."}
@@ -248,7 +250,7 @@ export default function GuidesPage() {
               {tc("noteCompletionReferenceId") || "Note your completion reference ID and share it with your coordinator if asked."}
             </p>
             <Badge variant="default" className="text-base px-4 py-2">
-              {referenceId}
+              {guideReferenceId}
             </Badge>
           </CardContent>
         </Card>
@@ -256,11 +258,3 @@ export default function GuidesPage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-

@@ -6,16 +6,17 @@ const CertificateSchema = new Schema({
     type: String,
     enum: ["organiser", "participant", "merit"],
     required: true,
+    index: true,
   },
   fullName: { type: String, required: true },
   institution: String,
   eventTitle: String,
   eventDate: Date,
-  regionCode: String,
+  regionCode: { type: String, index: true },
   score: Number,
-  createdAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now, index: true },
   verificationUrl: String,
-  appreciationOptIn: { type: Boolean, default: false },
+  appreciationOptIn: { type: Boolean, default: false, index: true },
   appreciationText: String,
   appreciationTo: {
     type: String,
@@ -24,6 +25,11 @@ const CertificateSchema = new Schema({
   userEmail: String,
   userIpHash: String,
 });
+
+// Compound indexes for common query patterns
+CertificateSchema.index({ appreciationOptIn: 1, createdAt: -1 });
+CertificateSchema.index({ regionCode: 1, createdAt: -1 });
+CertificateSchema.index({ type: 1, createdAt: -1 });
 
 export default models.Certificate || model("Certificate", CertificateSchema);
 

@@ -6,15 +6,16 @@ import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import { Menu, X, Home, Scale, GraduationCap, ShieldCheck, FileText, Cpu, Award, CalendarDays, ShieldHalf, MapPin } from "lucide-react";
+import { Menu, X, Home, Scale, GraduationCap, ShieldCheck, FileText, Cpu, Award, CalendarDays, ShieldHalf, MapPin, BookOpenCheck, Activity, BookOpen } from "lucide-react";
 
 const navIcons: Record<string, ReactNode> = {
   "/": <Home className="h-4 w-4" />,
-  "/road-safety": <ShieldHalf className="h-4 w-4" />,
+  "/basics": <BookOpen className="h-4 w-4" />,
+  "/guides": <BookOpenCheck className="h-4 w-4" />,
+  "/prevention": <Activity className="h-4 w-4" />,
   "/quiz": <ShieldCheck className="h-4 w-4" />,
   "/simulation": <Cpu className="h-4 w-4" />,
   "/certificates": <Award className="h-4 w-4" />,
-  "/certificates/regional": <MapPin className="h-4 w-4" />,
   "/events": <CalendarDays className="h-4 w-4" />,
   "/admin": <FileText className="h-4 w-4" />,
 };
@@ -37,14 +38,15 @@ export default function Nav() {
   };
 
   const navLinks = [
-    { href: "/", label: t("home"), key: "/" },
-    { href: "/road-safety", label: t("roadSafety"), key: "/road-safety" },
-    { href: "/quiz", label: t("quiz"), key: "/quiz" },
-    { href: "/simulation", label: t("simulation"), key: "/simulation" },
-    { href: "/certificates", label: t("certificates"), key: "/certificates" },
-    { href: "/events", label: t("events"), key: "/events" },
-    { href: "/certificates/regional", label: t("regionalEvent"), key: "/certificates/regional" },
-    { href: "/admin", label: t("admin"), key: "/admin" },
+    { href: "/", label: t("home"), bracket: null, key: "/" },
+    { href: "/basics", label: "Basics", bracket: "For All", key: "/basics" },
+    { href: "/simulation", label: t("simulation"), bracket: "School", key: "/simulation" },
+    { href: "/quiz", label: t("quiz"), bracket: "Inter", key: "/quiz" },
+    { href: "/guides", label: "Guides", bracket: "Undergrad", key: "/guides" },
+    { href: "/prevention", label: "Prevention", bracket: "Graduation", key: "/prevention" },
+    { href: "/events", label: t("events"), bracket: null, key: "/events" },
+    { href: "/certificates", label: t("certificates"), bracket: null, key: "/certificates" },
+    { href: "/admin", label: t("admin"), bracket: null, key: "/admin" },
   ];
 
   if (!mounted) return null;
@@ -95,15 +97,22 @@ export default function Nav() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  title={link.label}
-                  className={`relative flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium transition-all whitespace-nowrap group ${
+                  title={link.bracket ? `${link.label} (${link.bracket})` : link.label}
+                  className={`relative flex flex-col items-center gap-0.5 rounded-full px-2.5 py-1.5 text-xs font-medium transition-all group ${
                     active
                       ? "bg-emerald-600 text-white shadow-[0_10px_20px_rgba(7,80,55,0.3)]"
                       : "text-slate-600 hover:bg-emerald-50"
                   }`}
                 >
-                  <span className="text-sm">{navIcons[link.key]}</span>
-                  <span>{link.label}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">{navIcons[link.key]}</span>
+                    <span className="whitespace-nowrap">{link.label}</span>
+                  </div>
+                  {link.bracket && (
+                    <span className={`text-[10px] leading-tight ${active ? "text-white/90" : "text-slate-500"}`}>
+                      ({link.bracket})
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -150,12 +159,19 @@ export default function Nav() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition ${
+                    className={`flex flex-col gap-0.5 rounded-xl px-3 py-3 text-sm font-semibold transition ${
                       active ? "bg-emerald-600 text-white" : "text-slate-700 hover:bg-emerald-50"
                     }`}
                   >
-                    {navIcons[link.key]}
-                    {link.label}
+                    <div className="flex items-center gap-3">
+                      {navIcons[link.key]}
+                      <span>{link.label}</span>
+                    </div>
+                    {link.bracket && (
+                      <span className={`text-xs ml-7 ${active ? "text-white/90" : "text-slate-500"}`}>
+                        ({link.bracket})
+                      </span>
+                    )}
                   </Link>
                 );
               })}
